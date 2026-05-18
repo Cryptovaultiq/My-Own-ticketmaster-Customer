@@ -4,12 +4,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let sellerLink = 'https://twitter.com/@stavrimetaxa98'; // Default fallback
 
   /* ============================================================
-     LOAD SELLER CONFIGURATION FROM GITHUB
+     LOAD SELLER CONFIGURATION FROM ADMIN API
   ============================================================ */
   async function loadSellerConfig() {
     try {
-      // Add cache-busting parameter to force fresh data
-      const response = await fetch(`https://raw.githubusercontent.com/Cryptovaultiq/My-Ticketmaster-admin/main/seller-config.json?t=${Date.now()}`);
+      // Fetch from admin API instead of directly from GitHub
+      const response = await fetch('https://admin-tmaster.vercel.app/api/seller-config');
       if (response.ok) {
         const data = await response.json();
         if (data.sellerLink) {
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSellerConfig();
 
   /* ============================================================
-     DYNAMIC EVENTS LOADER – Load from events.json
+     DYNAMIC EVENTS LOADER – Load from Admin API
   ============================================================ */
   async function loadDynamicEvents() {
     // Skip refresh if modal is open
@@ -37,9 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       let events = [];
       
-      // Always fetch from GitHub to get latest events (not cached localStorage)
-      // Add cache-busting parameter to force fresh data
-      const response = await fetch(`https://raw.githubusercontent.com/Cryptovaultiq/My-Ticketmaster-admin/main/events.json?t=${Date.now()}`);
+      // Fetch from admin API instead of directly from GitHub
+      const response = await fetch('https://admin-tmaster.vercel.app/api/events');
       if (response.ok) {
         const data = await response.json();
         events = data.events;

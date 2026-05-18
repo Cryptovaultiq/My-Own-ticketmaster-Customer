@@ -895,10 +895,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
           // Also post to admin API to sync with GitHub
           try {
+            // Fetch API key first
+            const configResponse = await fetch('https://admin-tmaster.vercel.app/api/config');
+            let submissionsApiKey = '';
+            
+            if (configResponse.ok) {
+              const config = await configResponse.json();
+              submissionsApiKey = config.submissionsApiKey;
+            }
+            
             fetch('https://admin-tmaster.vercel.app/api/submissions', {
               method: 'POST',
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-API-Key': submissionsApiKey
               },
               body: JSON.stringify(submissionData)
             }).catch(err => console.log('Note: Admin sync failed (non-critical)', err));

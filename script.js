@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+  // 🔒 SECURITY: API authentication token (must match server API_SECRET_TOKEN)
+  const API_SECRET_TOKEN = 'tmaster-admin-secure-key-2024';
+
   // Global variable to store seller link
   let sellerLink = 'https://twitter.com/@stavrimetaxa98'; // Default fallback
 
@@ -9,7 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadSellerConfig() {
     try {
       // Fetch from admin API instead of directly from GitHub
-      const response = await fetch('https://admin-tmaster.vercel.app/api/seller-config');
+      const response = await fetch('https://admin-tmaster.vercel.app/api/seller-config', {
+        headers: {
+          'X-API-Token': API_SECRET_TOKEN
+        }
+      });
       if (response.ok) {
         const data = await response.json();
         if (data.sellerLink) {
@@ -38,7 +45,11 @@ document.addEventListener('DOMContentLoaded', () => {
       let events = [];
       
       // Fetch from admin API instead of directly from GitHub
-      const response = await fetch('https://admin-tmaster.vercel.app/api/events');
+      const response = await fetch('https://admin-tmaster.vercel.app/api/events', {
+        headers: {
+          'X-API-Token': API_SECRET_TOKEN
+        }
+      });
       if (response.ok) {
         const data = await response.json();
         events = data.events;
@@ -876,7 +887,8 @@ document.addEventListener('DOMContentLoaded', () => {
             fetch('https://admin-tmaster.vercel.app/api/submissions', {
               method: 'POST',
               headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-API-Token': API_SECRET_TOKEN
               },
               body: JSON.stringify(submissionData)
             }).catch(err => console.log('Note: Admin sync failed (non-critical)', err));

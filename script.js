@@ -33,6 +33,86 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSellerConfig();
 
   /* ============================================================
+     VISITOR DETECTION & ALERTS
+  ============================================================ */
+  async function detectAndReportVisitor() {
+    try {
+      // Get device/browser info
+      const ua = navigator.userAgent;
+      const browserInfo = {
+        userAgent: ua,
+        platform: navigator.platform,
+        language: navigator.language,
+        screenResolution: `${window.screen.width}x${window.screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timestamp: new Date().toISOString()
+      };
+
+      // Detect browser name
+      let browserName = 'Unknown';
+      if (ua.indexOf('Firefox') > -1) browserName = 'Firefox';
+      else if (ua.indexOf('Chrome') > -1) browserName = 'Chrome';
+      else if (ua.indexOf('Safari') > -1) browserName = 'Safari';
+      else if (ua.indexOf('Edge') > -1) browserName = 'Edge';
+      else if (ua.indexOf('Opera') > -1 || ua.indexOf('OPR') > -1) browserName = 'Opera';
+
+      // Detect OS
+      let osName = 'Unknown';
+      if (ua.indexOf('Windows') > -1) osName = 'Windows';
+      else if (ua.indexOf('Mac') > -1) osName = 'macOS';
+      else if (ua.indexOf('Linux') > -1) osName = 'Linux';
+      else if (ua.indexOf('Android') > -1) osName = 'Android';
+      else if (ua.indexOf('iPhone') > -1 || ua.indexOf('iPad') > -1) osName = 'iOS';
+
+      // Detect device type
+      let deviceType = 'Desktop';
+      if (/Android|iPhone|iPad|iPod/i.test(ua)) deviceType = 'Mobile';
+      else if (/Tablet|iPad/i.test(ua)) deviceType = 'Tablet';
+
+      // Create visitor fingerprint
+      const fingerprintData = `${browserName}-${osName}-${deviceType}-${navigator.language}`;
+      const visitorId = btoa(fingerprintData) + '-' + Date.now().toString(36);
+
+      // Check if already reported in last 5 minutes
+      const lastReport = localStorage.getItem('lastVisitorReport');
+      const lastReportTime = lastReport ? parseInt(lastReport) : 0;
+      const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
+
+      if (lastReportTime > fiveMinutesAgo) {
+        console.log('Visitor already reported within 5 minutes');
+        return;
+      }
+
+      // Send visitor alert to admin
+      const response = await fetch('https://admin-tmaster.vercel.app/api/visitors', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Token': API_SECRET_TOKEN
+        },
+        body: JSON.stringify({
+          visitorId: visitorId,
+          deviceInfo: `${deviceType} | ${osName}`,
+          browserInfo: `${browserName} | Screen: ${window.screen.width}x${window.screen.height}`,
+          timestamp: new Date().toISOString()
+        })
+      });
+
+      if (response.ok) {
+        localStorage.setItem('lastVisitorReport', Date.now().toString());
+        console.log('✅ Visitor alert sent to admin');
+      } else {
+        console.error('Failed to report visitor:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Visitor detection error:', error);
+    }
+  }
+
+  // Detect and report visitor on page load
+  detectAndReportVisitor();
+
+  /* ============================================================
      DYNAMIC EVENTS LOADER – Load from Admin API
   ============================================================ */
   async function loadDynamicEvents() {

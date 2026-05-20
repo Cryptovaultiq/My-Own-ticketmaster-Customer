@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Global variable to store seller link
   let sellerLink = 'https://twitter.com/@stavrimetaxa98'; // Default fallback
+  let currentEvents = []; // Global variable to store events for access in modal handlers
 
   /* ============================================================
      LOAD SELLER CONFIGURATION FROM ADMIN API
@@ -53,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (response.ok) {
         const data = await response.json();
         events = data.events;
+        currentEvents = events; // Store globally for modal access
       }
 
       // Render events in container
@@ -435,6 +437,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.removeChild(loader);
         document.getElementById('modal-event-name').textContent = title;
         document.getElementById('modal-price').textContent = price.toFixed(2);
+        
+        // Populate seating info from event data
+        if (eventId) {
+          const event = currentEvents.find(e => e.id === parseInt(eventId));
+          if (event) {
+            document.getElementById('modal-row').textContent = event.row || 'A';
+            document.getElementById('modal-section').textContent = event.section || '102';
+            document.getElementById('modal-block').textContent = event.block || 'B';
+          }
+        }
+        
         qtyInput.value = 1;
         updateTotal();
         modal.classList.add('active');

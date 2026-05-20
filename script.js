@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         events.forEach(event => {
           const section = document.createElement('section');
           section.className = 'hero-card-event';
+          section.id = `event-${event.id}`;
           section.dataset.price = event.price;
           section.dataset.eventId = event.id;
           section.innerHTML = `
@@ -360,20 +361,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ============================================================
-       BUY NOW BUTTON (Event Delegation for Dynamic Events)
+       HASH NAVIGATION - Scroll to Event on Load
     ============================================================ */
+    let hasScrolledToHashOnLoad = false;
+    
     function handleHashNavigation() {
       const hash = window.location.hash.slice(1); // Remove the # character
-      if (hash) {
-        const eventCard = document.querySelector(`[data-event-id="${hash}"] .hero-card`);
-        if (eventCard && eventCard.querySelector('.btn-buy-now')) {
-          eventCard.querySelector('.btn-buy-now').click();
-        }
+      if (hash && !hasScrolledToHashOnLoad) {
+        // Try to find and scroll to the event element
+        const attemptScroll = (retries = 0) => {
+          const eventElement = document.getElementById(`event-${hash}`);
+          if (eventElement) {
+            eventElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            hasScrolledToHashOnLoad = true;
+          } else if (retries < 10) {
+            // Retry if element not found yet (DOM may still be rendering)
+            setTimeout(() => attemptScroll(retries + 1), 100);
+          }
+        };
+        attemptScroll();
       }
     }
 
     // Listen for hash changes (e.g., user clicks back button or uses history)
-    window.addEventListener('hashchange', handleHashNavigation);
+    window.addEventListener('hashchange', () => {
+      hasScrolledToHashOnLoad = false;
+      handleHashNavigation();
+    });
 
     document.addEventListener('click', (e) => {
       if (!e.target.classList.contains('btn-buy-now')) return;

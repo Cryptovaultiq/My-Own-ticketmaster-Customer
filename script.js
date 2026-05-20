@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
        MESSAGE SELLER BUTTON + VERIFIED BADGE
     ============================================================ */
     const msgSellerBtn = document.createElement('button');
-    msgSellerBtn.innerHTML = 'Message Seller <span id="verify-badge">VERIFIED</span>';
+    msgSellerBtn.innerHTML = 'Tickets <span id="verify-badge">VERIFIED</span>';
     msgSellerBtn.id = 'msg-seller-btn';
     msgSellerBtn.style.display = 'block';
     msgSellerBtn.style.margin = '0 auto 1rem';

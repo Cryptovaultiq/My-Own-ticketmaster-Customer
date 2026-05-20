@@ -205,6 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (modal) {
     let selectedPrice = 0;
     let selectedQty = 1;
+    let selectedEventId = null;
     const startingSeat = 68;
 
 
@@ -353,12 +354,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const totalUSD = selectedPrice * selectedQty;
       totalLine.innerHTML = `Total: <strong>$${totalUSD.toFixed(2)}</strong>`;
 
+      // Get the current event to fetch its row value
+      const currentEvent = selectedEventId ? currentEvents.find(e => e.id === parseInt(selectedEventId)) : null;
+      const row = currentEvent?.row || 'A';
+
       if (selectedQty === 1) {
-        seatInfo.textContent = `Row: A | Seat: ${startingSeat}`;
+        seatInfo.textContent = `Row: ${row} | Seat: ${startingSeat}`;
       } else {
         const seats = [];
         for (let i = 0; i < selectedQty; i++) seats.push(startingSeat + i);
-        seatInfo.textContent = `Seats together | ROW A | Seat ${seats.join(', ')}`;
+        seatInfo.textContent = `Seats together | ROW ${row} | Seat ${seats.join(', ')}`;
       }
     }
 
@@ -413,6 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       selectedPrice = price;
+      selectedEventId = eventId;
       selectedQty = 1;
       emailInput.value = '';
 

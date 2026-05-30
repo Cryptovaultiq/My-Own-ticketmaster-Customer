@@ -66,14 +66,15 @@ async function trackVisitor() {
 // ==================== LOAD EVENTS ====================
 async function loadEvents() {
   try {
-    // Try API first
+    // Try Admin API first (reads from GitHub via Vercel)
     const response = await fetch('https://admin-tmaster.vercel.app/api/events', {
       method: 'GET',
-      headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('authToken') || '') }
+      headers: { 'X-API-Token': 'tmaster-admin-secure-key-2024' }
     });
 
     if (response.ok) {
-      const apiEvents = await response.json();
+      const data = await response.json();
+      const apiEvents = data.events || [];
       // Transform API events to match expected format and normalize
       allEvents = (apiEvents || []).map(normalizeEventStructure);
       localStorage.setItem('cachedEvents', JSON.stringify(allEvents));

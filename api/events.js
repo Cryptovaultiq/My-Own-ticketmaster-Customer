@@ -8,22 +8,20 @@ module.exports = async function handler(req, res) {
   const githubBranch = process.env.GITHUB_BRANCH || 'main';
   const filePath = 'tickets-data.json';
 
-  // CORS headers
+  // CORS headers - set ALWAYS for all responses
   const origin = req.headers.origin || '';
   const allowedOrigins = [
     'https://admin-tmaster.vercel.app',
     'https://tickettmaster-events.vercel.app',
+    'http://localhost',
     'localhost'
   ];
   
-  const isAllowed = !origin || allowedOrigins.some(allowed => origin.includes(allowed));
-  
-  if (isAllowed) {
-    res.setHeader('Access-Control-Allow-Origin', origin || 'https://admin-tmaster.vercel.app');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-Token, Authorization');
-    res.setHeader('Access-Control-Max-Age', '86400');
-  }
+  // Always set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-Token, Authorization');
+  res.setHeader('Access-Control-Max-Age', '86400');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();

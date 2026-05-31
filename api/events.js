@@ -2,7 +2,7 @@
 // EVENTS MANAGEMENT API ENDPOINT (Customer Portal)
 // =====================================================
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   const githubToken = process.env.GITHUB_TOKEN;
   const githubRepo = 'Cryptovaultiq/My-Own-ticketmaster-Customer';
   const githubBranch = process.env.GITHUB_BRANCH || 'main';

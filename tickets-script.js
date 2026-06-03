@@ -437,30 +437,75 @@ function showSectionSelectionModal() {
   } else {
     // Reserved seating - Show section grid
     grid.innerHTML = '';
-    currentTourDate.sections.forEach(section => {
-      const card = document.createElement('div');
-      card.className = 'section-card';
-      card.innerHTML = `
-        <div class="section-label">Section</div>
-        <div class="section-value">${section.section}</div>
-        <div class="section-label">Row</div>
-        <div class="section-value" style="font-size: 1rem;">${section.row}</div>
-        <div class="section-price">£${section.price.toFixed(2)}</div>
+    
+    // 🔧 FIX: Filter sections by ticket type
+    // First, try to use type field if available; otherwise infer from prices
+    let allSections = (currentTourDate.sections || []).filter(s => s);
+    let filteredSections = [];
+    
+    if (allSections.length > 0 && allSections[0].type) {
+      // Has type field - filter by ticket type ID
+      filteredSections = allSections.filter(s => s.type === currentTicketType.id);
+    } else if (currentEvent.ticketTypes && allSections.length > 0) {
+      // No type field - infer by price matching based on ticket type index
+      const ticketTypeIndex = currentEvent.ticketTypes.findIndex(t => t.id === currentTicketType.id);
+      
+      // Sort all sections by price to identify low/mid/high groups
+      const sortedSections = [...allSections].sort((a, b) => a.price - b.price);
+      const uniquePrices = [...new Set(sortedSections.map(s => s.price))].sort((a, b) => a - b);
+      
+      if (ticketTypeIndex === 0 && uniquePrices.length > 0) {
+        // General Admission - lowest price tier
+        const targetPrice = uniquePrices[0];
+        filteredSections = allSections.filter(s => s.price === targetPrice);
+      } else if (ticketTypeIndex === 1 && uniquePrices.length >= 2) {
+        // VIP - middle price tier
+        const targetPrice = uniquePrices[Math.floor(uniquePrices.length / 2)];
+        filteredSections = allSections.filter(s => s.price === targetPrice);
+      } else if (ticketTypeIndex === 2 && uniquePrices.length >= 2) {
+        // Seated - highest price tier
+        const targetPrice = uniquePrices[uniquePrices.length - 1];
+        filteredSections = allSections.filter(s => s.price === targetPrice);
+      } else {
+        // Fallback: show all sections
+        filteredSections = allSections;
+      }
+    } else {
+      filteredSections = allSections;
+    }
+    
+    if (filteredSections.length === 0) {
+      grid.innerHTML = `
+        <div style="padding: 2rem 0; text-align: center;">
+          <p style="color: var(--text-light);">No sections available for this ticket type.</p>
+        </div>
       `;
+    } else {
+      filteredSections.forEach(section => {
+        const card = document.createElement('div');
+        card.className = 'section-card';
+        card.innerHTML = `
+          <div class="section-label">Section</div>
+          <div class="section-value">${section.section}</div>
+          <div class="section-label">Row</div>
+          <div class="section-value" style="font-size: 1rem;">${section.row}</div>
+          <div class="section-price">£${section.price.toFixed(2)}</div>
+        `;
 
-      card.addEventListener('click', () => {
-        currentSection = section;
-        updateSectionSelection();
-        updatePriceBreakdown();
+        card.addEventListener('click', () => {
+          currentSection = section;
+          updateSectionSelection();
+          updatePriceBreakdown();
+        });
+
+        grid.appendChild(card);
       });
 
-      grid.appendChild(card);
-    });
-
-    // Select first section by default
-    if (currentTourDate.sections.length > 0) {
-      currentSection = currentTourDate.sections[0];
-      updateSectionSelection();
+      // Select first filtered section by default
+      if (filteredSections.length > 0) {
+        currentSection = filteredSections[0];
+        updateSectionSelection();
+      }
     }
   }
 

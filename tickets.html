@@ -183,24 +183,27 @@
   <div id="tourDatesModal" class="modal" style="display: none;">
     <div class="modal-overlay" onclick="closeTourDatesModal()"></div>
     <div class="modal-content tour-dates-modal">
-      <!-- Event Image Header (Sticky) -->
-      <div class="modal-event-header">
-        <img id="modalEventImage" src="" alt="Event" class="modal-event-image">
-        <div class="modal-event-overlay">
-          <h2 id="modalEventTitle" class="modal-event-title"></h2>
-        </div>
-      </div>
-
-      <!-- Tour Dates List -->
-      <div class="tour-dates-container">
-        <h3>Select a Date</h3>
-        <div id="tourDatesList" class="tour-dates-list">
-          <!-- Tour dates will be populated here -->
-        </div>
-      </div>
-
       <!-- Close Button -->
       <button class="close-btn" onclick="closeTourDatesModal()">×</button>
+      
+      <!-- Scrollable Inner Container -->
+      <div class="tour-dates-modal-inner">
+        <!-- Event Image Header (Scrolls with dates) -->
+        <div class="modal-event-header">
+          <img id="modalEventImage" src="" alt="Event" class="modal-event-image">
+          <div class="modal-event-overlay">
+            <h2 id="modalEventTitle" class="modal-event-title"></h2>
+          </div>
+        </div>
+
+        <!-- Tour Dates List -->
+        <div class="tour-dates-container">
+          <h3>Select a Date</h3>
+          <div id="tourDatesList" class="tour-dates-list">
+            <!-- Tour dates will be populated here -->
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -316,20 +319,43 @@
   <!-- VISITOR TRACKING SCRIPT -->
   <script>
     // ===============================================================
-    // REAL VISITOR TRACKING - Collects genuine visitor data
+    // GENUINE VISITOR TRACKING - Tracks real page visits and user analytics
     // ===============================================================
     
+    // Initialize tracking on page load
+    let pageLoadTime = Date.now();
+    let sessionStartTime = Date.now();
+    let maxScrollDepth = 0;
+    
+    // Track scroll depth
+    window.addEventListener('scroll', () => {
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrolled = window.scrollY;
+      const scrollPercent = scrollHeight > 0 ? Math.round((scrolled / scrollHeight) * 100) : 0;
+      if (scrollPercent > maxScrollDepth) {
+        maxScrollDepth = scrollPercent;
+      }
+    });
+
     async function trackVisitor() {
       try {
-        // Generate unique visitor ID
-        let visitorId = localStorage.getItem('visitorId');
-        if (!visitorId) {
-          visitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-          localStorage.setItem('visitorId', visitorId);
+        // Generate or retrieve session visitor ID
+        let sessionVisitorId = sessionStorage.getItem('sessionVisitorId');
+        if (!sessionVisitorId) {
+          sessionVisitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+          sessionStorage.setItem('sessionVisitorId', sessionVisitorId);
         }
 
-        // Collect browser and device information
+        // Also track persistent visitor across sessions
+        let persistentVisitorId = localStorage.getItem('persistentVisitorId');
+        if (!persistentVisitorId) {
+          persistentVisitorId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+          localStorage.setItem('persistentVisitorId', persistentVisitorId);
+        }
+
+        // Collect device and browser information
         const userAgent = navigator.userAgent;
+        
         const getBrowser = () => {
           if (userAgent.indexOf('Firefox') > -1) return 'Firefox';
           if (userAgent.indexOf('Chrome') > -1) return 'Chrome';
@@ -354,68 +380,110 @@
           return 'Unknown';
         };
 
-        // Get IP and geolocation data
-        let ipData = { ip: 'Unknown', country: 'Unknown' };
+        // Get geolocation data from IP
+        let ipData = { ip: 'Unknown', country: 'Unknown', city: 'Unknown', region: 'Unknown' };
         try {
-          // Using free geolocation API
-          const response = await fetch('https://ipapi.co/json/', { timeout: 5000 });
+          const response = await fetch('https://ipapi.co/json/');
           if (response.ok) {
             ipData = await response.json();
           }
         } catch (e) {
-          console.log('Geolocation API unavailable, using defaults');
+          console.log('Geolocation fetch skipped');
         }
 
-        // Collect referrer
+        // Page performance metrics
+        const pageLoadDuration = Date.now() - pageLoadTime;
         const referrer = document.referrer || 'Direct visit';
-
-        // Create visitor record
+        
+        // Create complete visitor tracking record
         const visitorRecord = {
-          visitorId: visitorId,
-          ip: ipData.ip,
-          browser: getBrowser(),
-          device: getDevice(),
-          os: getOS(),
-          country: ipData.country || ipData.city || 'Unknown',
-          referrer: referrer,
-          pageUrl: window.location.href,
-          timestamp: new Date().toISOString(),
-          userAgent: userAgent
+          sessionVisitorId: sessionVisitorId,
+          persistentVisitorId: persistentVisitorId,
+          visitTimestamp: new Date().toISOString(),
+          page: {
+            url: window.location.href,
+            title: document.title,
+            referrer: referrer,
+            timeOnPage: Math.round((Date.now() - pageLoadTime) / 1000),
+            pageLoadTime: pageLoadDuration
+          },
+          device: {
+            type: getDevice(),
+            browser: getBrowser(),
+            os: getOS(),
+            userAgent: userAgent
+          },
+          geo: {
+            ip: ipData.ip,
+            country: ipData.country || 'Unknown',
+            city: ipData.city || 'Unknown',
+            region: ipData.region || 'Unknown'
+          },
+          interaction: {
+            scrollDepth: maxScrollDepth,
+            sessionDuration: Math.round((Date.now() - sessionStartTime) / 1000)
+          }
         };
 
-        // Store in localStorage
-        let visitors = JSON.parse(localStorage.getItem('visitorTracking') || '[]');
-        visitors.push(visitorRecord);
-        localStorage.setItem('visitorTracking', JSON.stringify(visitors));
+        // Store locally for analytics
+        let sessionVisitors = JSON.parse(sessionStorage.getItem('sessionVisitors') || '[]');
+        sessionVisitors.push(visitorRecord);
+        sessionStorage.setItem('sessionVisitors', JSON.stringify(sessionVisitors));
 
-        // Alert admin of new visitor (optional - shows as notification)
-        console.log('🌟 New visitor tracked:', visitorRecord.visitorId, 'from', visitorRecord.country);
+        // Also store in localStorage for persistence
+        let allVisitors = JSON.parse(localStorage.getItem('allVisitorsLog') || '[]');
+        allVisitors.push(visitorRecord);
+        localStorage.setItem('allVisitorsLog', JSON.stringify(allVisitors));
 
-        // Try to send to admin API (optional)
+        // Send to admin API
         try {
-          await fetch('https://admin-tmaster.vercel.app/api/visitors', {
+          const apiResponse = await fetch('https://admin-tmaster.vercel.app/api/visitors', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + (localStorage.getItem('authToken') || '')
+              'X-API-Token': 'tmaster-admin-secure-key-2024'
             },
             body: JSON.stringify(visitorRecord)
-          }).catch(e => console.log('API sync skipped'));
-        } catch (e) {
-          console.log('Admin notification skipped');
+          });
+          
+          if (apiResponse.ok) {
+            console.log('✓ Visitor tracked successfully:', visitorRecord.sessionVisitorId);
+          } else {
+            console.log('Admin API response:', apiResponse.status);
+          }
+        } catch (apiError) {
+          console.log('Admin API tracking skipped - offline or unavailable');
         }
+
+        // Console log for debugging
+        console.log('📊 Page View Tracked:', {
+          visitor: visitorRecord.sessionVisitorId,
+          location: ipData.country,
+          device: getDevice(),
+          scrollDepth: maxScrollDepth + '%'
+        });
 
       } catch (error) {
         console.error('Visitor tracking error:', error);
       }
     }
 
-    // Track visitor on page load
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', trackVisitor);
-    } else {
-      trackVisitor();
-    }
+    // Track on page load
+    window.addEventListener('load', trackVisitor);
+
+    // Also track when user is about to leave (unload)
+    window.addEventListener('beforeunload', () => {
+      // Update session duration before closing
+      sessionStorage.setItem('lastSessionEnd', new Date().toISOString());
+    });
+
+    // Track visibility changes
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        // Page became visible, could track as re-engagement
+        console.log('Page re-engaged');
+      }
+    });
   </script>
 
   <!-- FOOTER -->

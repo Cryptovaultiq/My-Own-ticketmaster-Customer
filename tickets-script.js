@@ -36,9 +36,6 @@ function getCurrencySymbol(currency = 'USD') {
 
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', async () => {
-  // Track visitor
-  await trackVisitor();
-  
   // Load events from admin API
   await loadEvents();
   populateCategoryFilter();
@@ -176,15 +173,21 @@ function renderEvents(events) {
 
   noResults.style.display = 'none';
 
-  events.forEach(event => {
-    const card = createEventCard(event);
+  events.forEach((event, index) => {
+    const card = createEventCard(event, index);
     container.appendChild(card);
   });
+
+  // Handle hash-based navigation after rendering
+  setTimeout(() => handleHashNavigation(), 100);
 }
 
-function createEventCard(event) {
+function createEventCard(event, eventIndex) {
   const card = document.createElement('div');
   card.className = 'event-card';
+  card.id = `event-${eventIndex}`;
+  event.eventIndex = eventIndex;
+  
   card.innerHTML = `
     <img src="${event.imageUrl}" alt="${event.title}" class="event-image" onerror="this.src='https://via.placeholder.com/250x250?text=${encodeURIComponent(event.artist)}'">
     <div class="event-info">
@@ -200,6 +203,20 @@ function createEventCard(event) {
 
   return card;
 }
+
+// ==================== HASH-BASED NAVIGATION ====================
+function handleHashNavigation() {
+  const hash = window.location.hash.slice(1);
+  if (hash && /^\d+$/.test(hash)) {
+    const eventIndex = parseInt(hash);
+    const eventCard = document.getElementById(`event-${eventIndex}`);
+    if (eventCard) {
+      eventCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+}
+
+window.addEventListener('hashchange', handleHashNavigation);
 
 // ==================== EVENT DETAILS FLOW ====================
 function openEventDetails(event) {
@@ -643,21 +660,28 @@ function proceedToCheckout() {
   const currency = currentTourDate.currency || 'USD';
   const currencySymbol = getCurrencySymbol(currency);
   
+  const unitPrice = currentSection.price;
+  const subtotal = unitPrice * currentQuantity;
+  const bookingFee = subtotal * 0.02; // 2% booking fee
+  const total = subtotal + bookingFee;
+  
   const orderSummary = {
     event: currentEvent.title,
     location: currentTourDate.location,
     venue: currentTourDate.venue,
     date: currentTourDate.date,
     time: currentTourDate.time,
+    dateTime: `${currentTourDate.date} - ${currentTourDate.time}`,
     currency: currency,
     currencySymbol: currencySymbol,
     ticketType: currentTicketType.name,
     section: currentSection.section,
     row: currentSection.row,
     quantity: currentQuantity,
-    unitPrice: currentSection.price,
-    // Parse total by removing any non-numeric characters except decimal
-    total: parseFloat(document.getElementById('totalPrice').textContent.replace(/[^\d.]/g, ''))
+    unitPrice: unitPrice,
+    subtotal: subtotal,
+    bookingFee: bookingFee,
+    total: total
   };
 
   // Store order summary in sessionStorage

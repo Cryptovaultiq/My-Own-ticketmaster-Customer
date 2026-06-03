@@ -7,6 +7,33 @@ let currentTicketType = null;
 let currentSection = null;
 let currentQuantity = 1;
 
+// ==================== CURRENCY MAPPING ====================
+const CURRENCY_SYMBOLS = {
+  'USD': '$',
+  'EUR': '€',
+  'GBP': '£',
+  'JPY': '¥',
+  'AUD': 'A$',
+  'CAD': 'C$',
+  'CHF': 'CHF',
+  'CNY': '¥',
+  'SEK': 'kr',
+  'NZD': 'NZ$',
+  'MXN': '$',
+  'SGD': 'S$',
+  'HKD': 'HK$',
+  'NOK': 'kr',
+  'KRW': '₩',
+  'INR': '₹',
+  'RUB': '₽',
+  'BRL': 'R$',
+  'ZAR': 'R'
+};
+
+function getCurrencySymbol(currency = 'USD') {
+  return CURRENCY_SYMBOLS[currency] || currency;
+}
+
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', async () => {
   // Track visitor
@@ -339,6 +366,10 @@ function showTicketTypesModal() {
   const locationInfo = document.getElementById('locationInfo');
   const grid = document.getElementById('ticketTypesGrid');
 
+  // Get currency from tour date (default to USD)
+  const currency = currentTourDate.currency || 'USD';
+  const currencySymbol = getCurrencySymbol(currency);
+
   // Set location info
   locationInfo.innerHTML = `
     <p><strong>${currentTourDate.venue}</strong></p>
@@ -362,13 +393,13 @@ function showTicketTypesModal() {
     let priceDisplay = '';
     if (ticketType.id === 'general') {
       // General Admission shows the basePrice
-      priceDisplay = `£${ticketType.basePrice.toFixed(2)}`;
+      priceDisplay = `${currencySymbol}${ticketType.basePrice.toFixed(2)}`;
     } else {
       // VIP and Seated show minimum from sections
       if (minSectionPrice !== null) {
-        priceDisplay = `from £${minSectionPrice.toFixed(2)}`;
+        priceDisplay = `from ${currencySymbol}${minSectionPrice.toFixed(2)}`;
       } else {
-        priceDisplay = `£${ticketType.basePrice.toFixed(2)}`;
+        priceDisplay = `${currencySymbol}${ticketType.basePrice.toFixed(2)}`;
       }
     }
     
@@ -406,6 +437,10 @@ function showSectionSelectionModal() {
   const locationInfo = document.getElementById('sectionLocationInfo');
   const grid = document.getElementById('sectionsGrid');
   const quantityInput = document.getElementById('quantityInput');
+
+  // Get currency from tour date (default to USD)
+  const currency = currentTourDate.currency || 'USD';
+  const currencySymbol = getCurrencySymbol(currency);
 
   // Reset quantity
   currentQuantity = 1;
@@ -489,7 +524,7 @@ function showSectionSelectionModal() {
           <div class="section-value">${section.section}</div>
           <div class="section-label">Row</div>
           <div class="section-value" style="font-size: 1rem;">${section.row}</div>
-          <div class="section-price">£${section.price.toFixed(2)}</div>
+          <div class="section-price">${currencySymbol}${section.price.toFixed(2)}</div>
         `;
 
         card.addEventListener('click', () => {
@@ -577,32 +612,42 @@ function increaseQuantity() {
 function updatePriceBreakdown() {
   if (!currentSection || !currentQuantity) return;
 
+  // Get currency from tour date (default to USD)
+  const currency = currentTourDate.currency || 'USD';
+  const currencySymbol = getCurrencySymbol(currency);
+
   const unitPrice = currentSection.price;
   const subtotal = unitPrice * currentQuantity;
   const bookingFee = subtotal * 0.02;
   const total = subtotal + bookingFee;
 
-  document.getElementById('unitPrice').textContent = `£${unitPrice.toFixed(2)}`;
+  document.getElementById('unitPrice').textContent = `${currencySymbol}${unitPrice.toFixed(2)}`;
   document.getElementById('displayQuantity').textContent = currentQuantity;
-  document.getElementById('subtotal').textContent = `£${subtotal.toFixed(2)}`;
-  document.getElementById('bookingFee').textContent = `£${bookingFee.toFixed(2)}`;
-  document.getElementById('totalPrice').textContent = `£${total.toFixed(2)}`;
+  document.getElementById('subtotal').textContent = `${currencySymbol}${subtotal.toFixed(2)}`;
+  document.getElementById('bookingFee').textContent = `${currencySymbol}${bookingFee.toFixed(2)}`;
+  document.getElementById('totalPrice').textContent = `${currencySymbol}${total.toFixed(2)}`;
 }
 
 // ==================== CHECKOUT ====================
 function proceedToCheckout() {
+  const currency = currentTourDate.currency || 'USD';
+  const currencySymbol = getCurrencySymbol(currency);
+  
   const orderSummary = {
     event: currentEvent.title,
     location: currentTourDate.location,
     venue: currentTourDate.venue,
     date: currentTourDate.date,
     time: currentTourDate.time,
+    currency: currency,
+    currencySymbol: currencySymbol,
     ticketType: currentTicketType.name,
     section: currentSection.section,
     row: currentSection.row,
     quantity: currentQuantity,
     unitPrice: currentSection.price,
-    total: parseFloat(document.getElementById('totalPrice').textContent.replace('£', ''))
+    // Parse total by removing any non-numeric characters except decimal
+    total: parseFloat(document.getElementById('totalPrice').textContent.replace(/[^\d.]/g, ''))
   };
 
   // Store order summary in sessionStorage

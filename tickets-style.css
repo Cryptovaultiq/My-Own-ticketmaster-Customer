@@ -749,7 +749,6 @@ html {
 }
 
 .tour-date-card:hover {
-  border-color: var(--secondary-blue);
   background: rgba(0, 152, 255, 0.05);
   transform: translateX(4px);
 }

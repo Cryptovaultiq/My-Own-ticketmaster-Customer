@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   
   // Load events from admin API
   await loadEvents();
+  populateCategoryFilter();
   renderEvents(allEvents);
   
   // Add search on Enter key
@@ -377,10 +378,20 @@ function showTicketTypesModal() {
     <p>${currentTourDate.date} - ${currentTourDate.time}</p>
   `;
 
-  // Calculate minimum section price
-  let minSectionPrice = null;
-  if (currentTourDate.sections && currentTourDate.sections.length > 0) {
-    minSectionPrice = Math.min(...currentTourDate.sections.map(s => s.price));
+  // Helper function to calculate minimum price for each ticket type
+  function getMinPriceForType(ticketTypeId) {
+    if (!currentTourDate.sections || currentTourDate.sections.length === 0) {
+      return null;
+    }
+    
+    // Filter sections by type to get only sections for this ticket type
+    const typeSections = currentTourDate.sections.filter(s => s.type === ticketTypeId);
+    
+    if (typeSections.length === 0) {
+      return null;
+    }
+    
+    return Math.min(...typeSections.map(s => s.price));
   }
 
   // Render ticket types
@@ -389,18 +400,17 @@ function showTicketTypesModal() {
     const card = document.createElement('div');
     card.className = 'ticket-type-card';
     
+    // Calculate minimum price for this ticket type
+    const minTypePrice = getMinPriceForType(ticketType.id);
+    
     // Determine price to display
     let priceDisplay = '';
-    if (ticketType.id === 'general') {
-      // General Admission shows the basePrice
-      priceDisplay = `${currencySymbol}${ticketType.basePrice.toFixed(2)}`;
+    if (minTypePrice !== null) {
+      // Show "from" price if we found sections with this type
+      priceDisplay = `from ${currencySymbol}${minTypePrice.toFixed(2)}`;
     } else {
-      // VIP and Seated show minimum from sections
-      if (minSectionPrice !== null) {
-        priceDisplay = `from ${currencySymbol}${minSectionPrice.toFixed(2)}`;
-      } else {
-        priceDisplay = `${currencySymbol}${ticketType.basePrice.toFixed(2)}`;
-      }
+      // Fallback to basePrice if no sections found for this type
+      priceDisplay = `${currencySymbol}${ticketType.basePrice.toFixed(2)}`;
     }
     
     card.innerHTML = `
@@ -673,6 +683,41 @@ function applySearch() {
   });
 
   applyFilters();
+}
+
+// ==================== POPULATE CATEGORY FILTER ====================
+function populateCategoryFilter() {
+  try {
+    const categoryFilter = document.getElementById('categoryFilter');
+    if (!categoryFilter) return;
+
+    // Extract unique categories from all events
+    const categories = new Set();
+    allEvents.forEach(event => {
+      if (event.category) {
+        categories.add(event.category);
+      }
+    });
+
+    // Sort categories alphabetically
+    const sortedCategories = Array.from(categories).sort();
+
+    // Add categories to dropdown (keep "All Categories" option)
+    // Clear existing options except the first one (All Categories)
+    while (categoryFilter.options.length > 1) {
+      categoryFilter.remove(1);
+    }
+
+    // Add category options
+    sortedCategories.forEach(category => {
+      const option = document.createElement('option');
+      option.value = category;
+      option.textContent = category;
+      categoryFilter.appendChild(option);
+    });
+  } catch (error) {
+    console.error('Error populating category filter:', error);
+  }
 }
 
 function applyFilters() {

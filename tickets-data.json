@@ -882,6 +882,79 @@
               "exchangeRate": 1
             }
           ]
+        },
+        {
+          "id": "1780505644838",
+          "date": "2026-06-26",
+          "time": "20:00",
+          "dayOfWeek": "FRI",
+          "venue": "Riyadh Air Metropolitano (Metropolitano Stadium)",
+          "location": "Madrid, Spain",
+          "ticketsAvailable": 12,
+          "currency": "USD",
+          "exchangeRate": 1,
+          "sections": [
+            {
+              "id": "ga-1780505644838",
+              "section": "General",
+              "row": "GA",
+              "block": "ga",
+              "price": 89.99,
+              "type": "ga",
+              "currency": "USD",
+              "exchangeRate": 1
+            },
+            {
+              "id": "17805047479010.02458747263429728",
+              "section": "VIP",
+              "row": "1",
+              "block": "vip",
+              "price": 924.99,
+              "type": "vip",
+              "currency": "USD",
+              "exchangeRate": 1
+            },
+            {
+              "id": "17805047479020.8909637652294747",
+              "section": "421",
+              "row": "6",
+              "block": "seated",
+              "price": 177.99,
+              "type": "seated",
+              "currency": "USD",
+              "exchangeRate": 1
+            },
+            {
+              "id": "17805052118220.7213477329942903",
+              "section": "433",
+              "row": "2",
+              "block": "seated",
+              "price": 199.99,
+              "type": "seated",
+              "currency": "USD",
+              "exchangeRate": 1
+            },
+            {
+              "id": "17805052457230.0824168019553505",
+              "section": "500",
+              "row": "2",
+              "block": "seated",
+              "price": 199.99,
+              "type": "seated",
+              "currency": "USD",
+              "exchangeRate": 1
+            },
+            {
+              "id": "17805053239160.9564254466998316",
+              "section": "427",
+              "row": "21",
+              "block": "seated",
+              "price": 190.99,
+              "type": "seated",
+              "currency": "USD",
+              "exchangeRate": 1
+            }
+          ]
         }
       ],
       "ticketTypes": [

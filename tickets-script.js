@@ -189,7 +189,7 @@ function createEventCard(event, eventIndex) {
   event.eventIndex = eventIndex;
   
   card.innerHTML = `
-    <img src="${event.imageUrl}" alt="${event.title}" class="event-image" onerror="this.src='https://via.placeholder.com/250x250?text=${encodeURIComponent(event.artist)}'">
+    <img src="${event.imageUrl}" alt="${event.title}" class="event-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22250%22 height=%22250%22%3E%3Crect fill=%22%23666%22 width=%22250%22 height=%22250%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2220%22 fill=%22white%22 text-anchor=%22middle%22 dy=%22.3em%22%3E${event.artist}%3C/text%3E%3C/svg%3E'">
     <div class="event-info">
       <div class="event-name">${event.title}</div>
       <div class="event-artist">${event.artist}</div>
@@ -316,7 +316,7 @@ function showTourDatesModal() {
   // Set event image and title
   imageElement.src = currentEvent.imageUrl;
   imageElement.onerror = () => {
-    imageElement.src = `https://via.placeholder.com/600x250?text=${encodeURIComponent(currentEvent.artist)}`;
+    imageElement.src = `data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22600%22 height=%22250%22%3E%3Crect fill=%22%23666%22 width=%22600%22 height=%22250%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2224%22 fill=%22white%22 text-anchor=%22middle%22 dy=%22.3em%22%3E${currentEvent.artist}%3C/text%3E%3C/svg%3E`;
   };
   titleElement.textContent = currentEvent.title;
 

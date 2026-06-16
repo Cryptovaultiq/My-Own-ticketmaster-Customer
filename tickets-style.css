@@ -2094,7 +2094,6 @@ html {
     font-size: 0.95rem;
     border-radius: 4px;
   }
-}
 
 /* 1080px - Large tablets/Landscape */
 @media (min-width: 781px) and (max-width: 1080px) {

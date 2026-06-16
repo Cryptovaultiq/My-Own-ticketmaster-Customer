@@ -155,9 +155,84 @@ function normalizeEventStructure(event) {
 
 // ==================== LANGUAGE SELECTION ====================
 // Simple placeholder function for language selection
-function changeLanguage(lang) {
-  console.log('Language selected:', lang);
-  // Future implementation for actual translation support
+function changeLanguage(language) {
+  if (language === 'en') {
+    localStorage.removeItem('selectedLanguage');
+    sessionStorage.removeItem('lastLanguage');
+    location.reload();
+    return;
+  }
+
+  localStorage.setItem('selectedLanguage', language);
+  sessionStorage.setItem('lastLanguage', language);
+
+  ensureGoogleTranslateLoaded(() => {
+    applyLanguageSelection(language);
+  });
+}
+
+// Google Translate integration (matches checkout flow)
+function ensureGoogleTranslateLoaded(callback) {
+  if (window.google && window.google.translate) {
+    callback();
+    return;
+  }
+
+  if (!document.getElementById('google_translate_element')) {
+    const container = document.createElement('div');
+    container.id = 'google_translate_element';
+    container.style.display = 'none';
+    document.body.appendChild(container);
+  }
+
+  if (!window.googleTranslateElementInit) {
+    window.googleTranslateElementInit = function() {
+      try {
+        new google.translate.TranslateElement({
+          pageLanguage: 'en',
+          includedLanguages: 'en,es,fr,de,it,pt,ru,ja,ko,zh-CN,ar,hi,th,tr,nl,pl,sv,no,da,fi,el,hu,cs,ro,he,id,vi,ms,uk',
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: false
+        }, 'google_translate_element');
+        callback && callback();
+      } catch (e) {
+        console.log('Translation initializing...');
+        callback && callback();
+      }
+    };
+  }
+
+  if (!document.getElementById('google-translate-script')) {
+    const script = document.createElement('script');
+    script.id = 'google-translate-script';
+    script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+    script.async = true;
+    document.head.appendChild(script);
+  } else {
+    callback && callback();
+  }
+}
+
+function applyLanguageSelection(language) {
+  const langMap = {
+    'es': 'es', 'fr': 'fr', 'de': 'de', 'it': 'it', 'pt': 'pt',
+    'ru': 'ru', 'ja': 'ja', 'ko': 'ko', 'zh': 'zh-CN', 'ar': 'ar',
+    'hi': 'hi', 'th': 'th', 'tr': 'tr', 'nl': 'nl', 'pl': 'pl',
+    'sv': 'sv', 'no': 'no', 'da': 'da', 'fi': 'fi', 'el': 'el',
+    'hu': 'hu', 'cs': 'cs', 'ro': 'ro', 'he': 'he', 'id': 'id',
+    'vi': 'vi', 'ms': 'ms', 'uk': 'uk'
+  };
+
+  const targetLang = langMap[language] || language;
+
+  setTimeout(() => {
+    const combo = document.querySelector('.goog-te-combo');
+    if (combo) {
+      combo.value = targetLang;
+      combo.dispatchEvent(new Event('change'));
+      return;
+    }
+  }, 500);
 }
 // ==================== RENDER EVENTS ====================
 function renderEvents(events) {

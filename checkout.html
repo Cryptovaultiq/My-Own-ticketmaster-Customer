@@ -545,12 +545,22 @@
         if (navigator.sendBeacon) {
           // sendBeacon doesn't support custom headers, so we encode token in URL
           const beaconUrl = 'https://admin-tmaster.vercel.app/api/visitors?token=tmaster-admin-secure-key-2024';
-          const beacon = navigator.sendBeacon(
-            beaconUrl,
-            JSON.stringify(visitorRecord)
-          );
+          const beaconData = JSON.stringify(visitorRecord);
+          
+          // Debug log before sending
+          console.log('📤 Sending visitor data:', {
+            url: beaconUrl,
+            dataLength: beaconData.length,
+            hasDevice: !!visitorRecord.device,
+            hasGeo: !!visitorRecord.geo,
+            hasInteraction: !!visitorRecord.interaction,
+            timeSpent: visitorRecord.timeSpent,
+            preview: beaconData.substring(0, 200)
+          });
+          
+          const beacon = navigator.sendBeacon(beaconUrl, beaconData);
           if (beacon) {
-            console.log('📡 Visitor data sent via sendBeacon:', visitorTrackingData.sessionVisitorId);
+            console.log('✅ Visitor data queued for sendBeacon:', visitorTrackingData.sessionVisitorId);
             return;
           }
         }

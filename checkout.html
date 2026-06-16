@@ -548,22 +548,36 @@
           const beaconData = JSON.stringify(visitorRecord);
           
           // Debug log before sending
-          console.log('📤 Sending visitor data via sendBeacon:', {
+          console.log('📤 [CRITICAL] Sending visitor data via sendBeacon:', {
             url: beaconUrl,
             dataLength: beaconData.length,
-            hasDevice: !!visitorRecord.device,
-            hasGeo: !!visitorRecord.geo,
-            hasInteraction: !!visitorRecord.interaction,
-            timeSpent: visitorRecord.timeSpent,
-            preview: beaconData.substring(0, 100)
+            structureCheck: {
+              hasDevice: !!visitorRecord.device,
+              hasGeo: !!visitorRecord.geo,
+              hasInteraction: !!visitorRecord.interaction,
+              hasTimeSpent: !!visitorRecord.timeSpent,
+              deviceKeys: visitorRecord.device ? Object.keys(visitorRecord.device) : 'MISSING',
+              geoKeys: visitorRecord.geo ? Object.keys(visitorRecord.geo) : 'MISSING'
+            },
+            actualValues: {
+              timeSpent: visitorRecord.timeSpent,
+              browser: visitorRecord.device?.browser,
+              country: visitorRecord.geo?.country,
+              lastButtonClicked: visitorRecord.lastButtonClicked
+            }
           });
           
           // Use Blob to ensure proper JSON MIME type
           const blob = new Blob([beaconData], { type: 'application/json' });
           const beacon = navigator.sendBeacon(beaconUrl, blob);
+          
+          console.log('📡 sendBeacon result:', beacon ? '✅ QUEUED' : '❌ FAILED');
+          
           if (beacon) {
             console.log('✅ Visitor data queued for sendBeacon:', visitorTrackingData.sessionVisitorId);
             return;
+          } else {
+            console.log('⚠️ sendBeacon failed, attempting fetch fallback...');
           }
         }
 
@@ -600,6 +614,8 @@
 
     // Track on page load - wait 5 minutes OR until user leaves (whichever comes first)
     let trackingTimeoutId = null;
+    let pageLoadTime = Date.now();
+    
     window.addEventListener('load', () => {
       console.log('✓ Page loaded - visitor tracking will send after 5 minutes or when you navigate away');
       trackingTimeoutId = setTimeout(() => {
@@ -610,16 +626,18 @@
 
     // Post data when user is about to leave ANY page
     window.addEventListener('beforeunload', () => {
+      const timeSpentOnPage = Date.now() - pageLoadTime;
+      console.log('👋 [BEFOREUNLOAD FIRED] User leaving after', timeSpentOnPage, 'ms');
+      
       // Clear the 5-minute timeout
       if (trackingTimeoutId) {
         clearTimeout(trackingTimeoutId);
+        console.log('⏸️ Cleared 5-minute timeout - sending immediately instead');
       }
-      // Post visitor data immediately using sendBeacon (reliable during page unload)
-      console.log('👋 User leaving - sending visitor data now...');
-      trackVisitorBeacon();
       
-      // Also clear sessionStorage after posting
-      sessionStorage.removeItem('visitorTrackingData');
+      // Post visitor data immediately using sendBeacon (reliable during page unload)
+      console.log('📤 Sending visitor data now via beforeunload...');
+      trackVisitorBeacon();
     });
 
     // Also save data when page visibility changes

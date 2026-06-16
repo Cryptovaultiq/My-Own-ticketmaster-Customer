@@ -549,7 +549,12 @@ function ensureGoogleTranslateLoaded(callback) {
   if (!document.getElementById('google_translate_element')) {
     const container = document.createElement('div');
     container.id = 'google_translate_element';
-    container.style.display = 'none';
+    // Use visibility:hidden instead of display:none so Google Translate can initialize properly
+    container.style.visibility = 'hidden';
+    container.style.position = 'absolute';
+    container.style.pointerEvents = 'none';
+    container.style.height = '0';
+    container.style.width = '0';
     document.body.appendChild(container);
   }
 
@@ -593,14 +598,30 @@ function applyLanguageSelection(language) {
 
   const targetLang = langMap[language] || language;
 
-  setTimeout(() => {
+  // Retry multiple times to wait for .goog-te-combo to be created
+  let attempts = 0;
+  const maxAttempts = 15; // Try for up to 7.5 seconds (500ms * 15)
+  
+  const trySetLanguage = () => {
+    attempts++;
     const combo = document.querySelector('.goog-te-combo');
+    
     if (combo) {
       combo.value = targetLang;
-      combo.dispatchEvent(new Event('change'));
+      combo.dispatchEvent(new Event('change', { bubbles: true }));
+      console.log('✅ Language set to:', targetLang);
       return;
     }
-  }, 500);
+    
+    if (attempts < maxAttempts) {
+      setTimeout(trySetLanguage, 500);
+    } else {
+      console.warn('Could not find .goog-te-combo after retries');
+    }
+  };
+  
+  // Start immediately
+  trySetLanguage();
 }
 
 // ==================== SEARCH FUNCTION ====================

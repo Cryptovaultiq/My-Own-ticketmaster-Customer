@@ -545,17 +545,19 @@
           const beaconData = JSON.stringify(visitorRecord);
           
           // Debug log before sending
-          console.log('📤 Sending visitor data:', {
+          console.log('📤 Sending visitor data via sendBeacon:', {
             url: beaconUrl,
             dataLength: beaconData.length,
             hasDevice: !!visitorRecord.device,
             hasGeo: !!visitorRecord.geo,
             hasInteraction: !!visitorRecord.interaction,
             timeSpent: visitorRecord.timeSpent,
-            preview: beaconData.substring(0, 200)
+            preview: beaconData.substring(0, 100)
           });
           
-          const beacon = navigator.sendBeacon(beaconUrl, beaconData);
+          // Use Blob to ensure proper JSON MIME type
+          const blob = new Blob([beaconData], { type: 'application/json' });
+          const beacon = navigator.sendBeacon(beaconUrl, blob);
           if (beacon) {
             console.log('✅ Visitor data queued for sendBeacon:', visitorTrackingData.sessionVisitorId);
             return;

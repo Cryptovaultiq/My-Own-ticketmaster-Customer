@@ -542,22 +542,24 @@
     }
 
     // Track on page load - wait 5 minutes (300 seconds) before posting visitor data
+    let trackingTimeoutId = null;
     window.addEventListener('load', () => {
-      console.log('✓ Page loaded - visitor tracking will send after 5 minutes of inactivity or page close');
-      setTimeout(() => {
+      console.log('✓ Page loaded - visitor tracking will send after 5 minutes');
+      trackingTimeoutId = setTimeout(() => {
         console.log('⏱️ 5-minute mark reached - sending visitor data to admin...');
         trackVisitor();
-      }, 5 * 60 * 1000);
+      }, 5 * 60 * 1000); // 5 minutes
     });
 
-    // Also track when user is about to leave (unload) - send data immediately
+    // Mark when user is about to leave (but don't post - only local storage)
     window.addEventListener('beforeunload', () => {
-      // Send visitor data before leaving if it hasn't been sent yet
-      if (Date.now() - sessionStartTime < 5 * 60 * 1000) {
-        console.log('👋 User leaving before 5 minutes - sending visitor data now...');
-        trackVisitor();
+      // Clear pending timeout so it doesn't fire after page is unloaded
+      if (trackingTimeoutId) {
+        clearTimeout(trackingTimeoutId);
       }
+      // Store the visit locally even if 5 minutes hasn't passed
       sessionStorage.setItem('lastSessionEnd', new Date().toISOString());
+      sessionStorage.setItem('sessionAbandoned', 'true');
     });
 
     // Track visibility changes

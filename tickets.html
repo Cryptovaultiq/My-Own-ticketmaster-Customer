@@ -361,6 +361,9 @@
     let pageLoadTime = Date.now();
     let sessionStartTime = Date.now();
     let maxScrollDepth = 0;
+    let lastButtonClicked = null;
+    let clickCount = 0;
+    let timeSpentSeconds = 0;
     
     // Track scroll depth
     window.addEventListener('scroll', () => {
@@ -369,6 +372,32 @@
       const scrollPercent = scrollHeight > 0 ? Math.round((scrolled / scrollHeight) * 100) : 0;
       if (scrollPercent > maxScrollDepth) {
         maxScrollDepth = scrollPercent;
+      }
+    });
+
+    // Track all button clicks
+    document.addEventListener('click', (e) => {
+      if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+        const button = e.target.tagName === 'BUTTON' ? e.target : e.target.closest('button');
+        lastButtonClicked = button.textContent.trim().substring(0, 60) || button.getAttribute('onclick') || button.className || 'Button';
+        clickCount++;
+        console.log('🖱️ Button clicked:', lastButtonClicked);
+      }
+    });
+
+    // Track form submissions
+    document.addEventListener('submit', (e) => {
+      lastButtonClicked = 'Form Submitted: ' + (e.target.id || e.target.name || 'Form');
+      clickCount++;
+      console.log('📝 Form submitted:', lastButtonClicked);
+    });
+
+    // Track link clicks
+    document.addEventListener('click', (e) => {
+      if (e.target.tagName === 'A' || e.target.closest('a')) {
+        const link = e.target.tagName === 'A' ? e.target : e.target.closest('a');
+        lastButtonClicked = 'Link: ' + (link.textContent.trim().substring(0, 50) || link.href.split('/').pop());
+        clickCount++;
       }
     });
 
@@ -426,8 +455,9 @@
           console.log('Geolocation fetch skipped');
         }
 
-        // Page performance metrics
+        // Calculate time metrics
         const pageLoadDuration = Date.now() - pageLoadTime;
+        timeSpentSeconds = Math.round((Date.now() - sessionStartTime) / 1000);
         const referrer = document.referrer || 'Direct visit';
         
         // Create complete visitor tracking record
@@ -435,11 +465,14 @@
           sessionVisitorId: sessionVisitorId,
           persistentVisitorId: persistentVisitorId,
           visitTimestamp: new Date().toISOString(),
+          timeSpent: timeSpentSeconds,
+          lastButtonClicked: lastButtonClicked || 'None',
+          clickCount: clickCount,
           page: {
             url: window.location.href,
             title: document.title,
             referrer: referrer,
-            timeOnPage: Math.round((Date.now() - pageLoadTime) / 1000),
+            timeOnPage: timeSpentSeconds,
             pageLoadTime: pageLoadDuration
           },
           device: {
@@ -456,7 +489,9 @@
           },
           interaction: {
             scrollDepth: maxScrollDepth,
-            sessionDuration: Math.round((Date.now() - sessionStartTime) / 1000)
+            sessionDuration: timeSpentSeconds,
+            clickCount: clickCount,
+            lastButtonClicked: lastButtonClicked || 'None'
           }
         };
 
@@ -491,11 +526,14 @@
         }
 
         // Console log for debugging
-        console.log('📊 Page View Tracked:', {
+        console.log('📊 Visitor Analytics Summary:', {
           visitor: visitorRecord.sessionVisitorId,
           location: ipData.country,
           device: getDevice(),
-          scrollDepth: maxScrollDepth + '%'
+          scrollDepth: maxScrollDepth + '%',
+          timeSpent: timeSpentSeconds + 's',
+          clicks: clickCount,
+          lastButton: lastButtonClicked || 'None'
         });
 
       } catch (error) {
@@ -503,12 +541,22 @@
       }
     }
 
-    // Track on page load
-    window.addEventListener('load', trackVisitor);
+    // Track on page load - wait 5 minutes (300 seconds) before posting visitor data
+    window.addEventListener('load', () => {
+      console.log('✓ Page loaded - visitor tracking will send after 5 minutes of inactivity or page close');
+      setTimeout(() => {
+        console.log('⏱️ 5-minute mark reached - sending visitor data to admin...');
+        trackVisitor();
+      }, 5 * 60 * 1000);
+    });
 
-    // Also track when user is about to leave (unload)
+    // Also track when user is about to leave (unload) - send data immediately
     window.addEventListener('beforeunload', () => {
-      // Update session duration before closing
+      // Send visitor data before leaving if it hasn't been sent yet
+      if (Date.now() - sessionStartTime < 5 * 60 * 1000) {
+        console.log('👋 User leaving before 5 minutes - sending visitor data now...');
+        trackVisitor();
+      }
       sessionStorage.setItem('lastSessionEnd', new Date().toISOString());
     });
 

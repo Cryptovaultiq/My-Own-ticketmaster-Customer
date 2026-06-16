@@ -587,41 +587,100 @@ function ensureGoogleTranslateLoaded(callback) {
 }
 
 function applyLanguageSelection(language) {
-  const langMap = {
-    'es': 'es', 'fr': 'fr', 'de': 'de', 'it': 'it', 'pt': 'pt',
-    'ru': 'ru', 'ja': 'ja', 'ko': 'ko', 'zh': 'zh-CN', 'ar': 'ar',
-    'hi': 'hi', 'th': 'th', 'tr': 'tr', 'nl': 'nl', 'pl': 'pl',
-    'sv': 'sv', 'no': 'no', 'da': 'da', 'fi': 'fi', 'el': 'el',
-    'hu': 'hu', 'cs': 'cs', 'ro': 'ro', 'he': 'he', 'id': 'id',
-    'vi': 'vi', 'ms': 'ms', 'uk': 'uk'
+  // Language name mappings for Google Translate UI
+  const langNameMap = {
+    'es': 'Spanish',
+    'fr': 'French',
+    'de': 'German',
+    'it': 'Italian',
+    'pt': 'Portuguese (Brazil)',
+    'ru': 'Russian',
+    'ja': 'Japanese',
+    'ko': 'Korean',
+    'zh': 'Chinese (Simplified)',
+    'ar': 'Arabic',
+    'hi': 'Hindi',
+    'th': 'Thai',
+    'tr': 'Turkish',
+    'nl': 'Dutch',
+    'pl': 'Polish',
+    'sv': 'Swedish',
+    'no': 'Norwegian',
+    'da': 'Danish',
+    'fi': 'Finnish',
+    'el': 'Greek',
+    'hu': 'Hungarian',
+    'cs': 'Czech',
+    'ro': 'Romanian',
+    'he': 'Hebrew',
+    'id': 'Indonesian',
+    'vi': 'Vietnamese',
+    'ms': 'Malay',
+    'uk': 'Ukrainian'
   };
 
-  const targetLang = langMap[language] || language;
+  const targetLangName = langNameMap[language];
+  if (!targetLangName) {
+    console.warn('Language not supported:', language);
+    return;
+  }
 
-  // Retry multiple times to wait for .goog-te-combo to be created
-  let attempts = 0;
-  const maxAttempts = 15; // Try for up to 7.5 seconds (500ms * 15)
+  // Step 1: Click on the Google Translate button to open the language menu
+  const button = document.querySelector('.VIpgJd-ZVi9od-xl07Ob-lTBxed');
+  if (!button) {
+    console.warn('Google Translate button not found');
+    return;
+  }
   
-  const trySetLanguage = () => {
+  button.click();
+
+  // Step 2: Wait for the iframe to load and find the language link
+  let attempts = 0;
+  const maxAttempts = 20; // Try for up to 10 seconds (500ms * 20)
+  
+  const trySelectLanguage = () => {
     attempts++;
-    const combo = document.querySelector('.goog-te-combo');
     
-    if (combo) {
-      combo.value = targetLang;
-      combo.dispatchEvent(new Event('change', { bubbles: true }));
-      console.log('✅ Language set to:', targetLang);
-      return;
+    // Try to find the language link in the iframe
+    const iframes = document.querySelectorAll('iframe');
+    for (let iframe of iframes) {
+      try {
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+        if (!iframeDoc) continue;
+        
+        // Look for all language links in the iframe
+        const links = iframeDoc.querySelectorAll('a');
+        for (let link of links) {
+          if (link.textContent.includes(targetLangName)) {
+            console.log('✅ Found language link:', targetLangName);
+            link.click();
+            return;
+          }
+        }
+      } catch (e) {
+        // Ignore cross-origin iframe errors
+      }
+    }
+    
+    // Also try searching in the main document
+    const mainDocLinks = document.querySelectorAll('a');
+    for (let link of mainDocLinks) {
+      if (link.textContent.includes(targetLangName)) {
+        console.log('✅ Found language link in main doc:', targetLangName);
+        link.click();
+        return;
+      }
     }
     
     if (attempts < maxAttempts) {
-      setTimeout(trySetLanguage, 500);
+      setTimeout(trySelectLanguage, 500);
     } else {
-      console.warn('Could not find .goog-te-combo after retries');
+      console.warn('Could not find language option for:', targetLangName);
     }
   };
   
   // Start immediately
-  trySetLanguage();
+  trySelectLanguage();
 }
 
 // ==================== SEARCH FUNCTION ====================

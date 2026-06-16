@@ -879,6 +879,119 @@ body {
     border: none;
     cursor: pointer;
   }
+}
+
+/* ==================== GOOGLE TRANSLATE BEAUTIFICATION ==================== */
+
+/* Hide the default Google Translate gadget icon/styling */
+.skiptranslate {
+  display: none !important;
+}
+
+/* Hide the original Google Translate element */
+#google_translate_element {
+  display: none !important;
+}
+
+/* Style the Google Translate button that appears */
+.goog-te-gadget-simple {
+  background: linear-gradient(135deg, #0098ff 0%, #0080d9 100%) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 8px 16px !important;
+  box-shadow: 0 2px 8px rgba(0, 152, 255, 0.25) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-family: inherit !important;
+}
+
+.goog-te-gadget-simple:hover {
+  background: linear-gradient(135deg, #0080d9 0%, #006bb8 100%) !important;
+  box-shadow: 0 6px 20px rgba(0, 152, 255, 0.35) !important;
+  transform: translateY(-2px) !important;
+}
+
+.goog-te-gadget-simple a {
+  color: #ffffff !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.goog-te-gadget-simple a:hover {
+  color: #ffffff !important;
+}
+
+.goog-te-gadget-icon {
+  display: inline-block !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0 4px 0 0 !important;
+  opacity: 0.95 !important;
+}
+
+/* Style the dropdown menu frame */
+.goog-te-menu-frame {
+  border-radius: 12px !important;
+  border: 1px solid #0098ff !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15) !important;
+  overflow: hidden !important;
+  background-color: #ffffff !important;
+}
+
+/* Style the frame content (inside iframe) */
+iframe.goog-te-menu-frame {
+  background-color: #ffffff !important;
+  border-radius: 12px !important;
+}
+
+/* Animation for button */
+@keyframes translateButtonPulse {
+  0% {
+    box-shadow: 0 2px 8px rgba(0, 152, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 16px rgba(0, 152, 255, 0.3);
+  }
+  100% {
+    box-shadow: 0 2px 8px rgba(0, 152, 255, 0.2);
+  }
+}
+
+/* Apply pulse animation on first load */
+.goog-te-gadget-simple:first-of-type {
+  animation: translateButtonPulse 2s ease-in-out;
+}
+
+/* Ensure smooth transitions */
+.goog-te-gadget * {
+  transition: background-color 0.2s ease, color 0.2s ease !important;
+}
+
+/* Active/selected state */
+.goog-te-gadget-simple.active {
+  box-shadow: 0 4px 16px rgba(0, 152, 255, 0.4) !important;
+}
+
+/* Responsive styles for mobile */
+@media (max-width: 650px) {
+  .goog-te-gadget-simple {
+    padding: 6px 12px !important;
+    font-size: 0.85rem !important;
+  }
+
+  .goog-te-gadget-simple a {
+    font-size: 0.8rem !important;
+  }
+
+  .goog-te-gadget-icon {
+    width: 13px !important;
+    height: 13px !important;
+    margin-right: 3px !important;
+  }
+}
 
   .hamburger-icon {
     height: 28px;

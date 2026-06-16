@@ -540,8 +540,10 @@
 
         // Try to send with sendBeacon (works during page unload)
         if (navigator.sendBeacon) {
+          // sendBeacon doesn't support custom headers, so we encode token in URL
+          const beaconUrl = 'https://admin-tmaster.vercel.app/api/visitors?token=tmaster-admin-secure-key-2024';
           const beacon = navigator.sendBeacon(
-            'https://admin-tmaster.vercel.app/api/visitors',
+            beaconUrl,
             JSON.stringify(visitorRecord)
           );
           if (beacon) {

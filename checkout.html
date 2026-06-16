@@ -353,5 +353,271 @@
   </footer>
 
   <script src="checkout-script.js?v=20260525000001"></script>
+  
+  <!-- CROSS-PAGE VISITOR TRACKING SCRIPT -->
+  <script>
+    // ===============================================================
+    // GENUINE VISITOR TRACKING - Cross-page tracking for all customer interactions
+    // ===============================================================
+    
+    // Initialize or retrieve tracking data from sessionStorage
+    let visitorTrackingData = JSON.parse(sessionStorage.getItem('visitorTrackingData') || 'null');
+    
+    if (!visitorTrackingData) {
+      // First time - create new tracking session
+      visitorTrackingData = {
+        pageLoadTime: Date.now(),
+        sessionStartTime: Date.now(),
+        sessionVisitorId: 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        persistentVisitorId: localStorage.getItem('persistentVisitorId') || 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        maxScrollDepth: 0,
+        lastButtonClicked: null,
+        clickCount: 0,
+        pagesVisited: [window.location.href],
+        interactions: []
+      };
+      
+      if (!localStorage.getItem('persistentVisitorId')) {
+        localStorage.setItem('persistentVisitorId', visitorTrackingData.persistentVisitorId);
+      }
+    }
+    
+    // Ensure persistent visitor ID is set
+    if (!localStorage.getItem('persistentVisitorId')) {
+      localStorage.setItem('persistentVisitorId', visitorTrackingData.persistentVisitorId);
+    }
+    
+    // Add current page to pages visited (if not already there)
+    if (!visitorTrackingData.pagesVisited.includes(window.location.href)) {
+      visitorTrackingData.pagesVisited.push(window.location.href);
+    }
+    
+    // Track scroll depth on this page
+    window.addEventListener('scroll', () => {
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrolled = window.scrollY;
+      const scrollPercent = scrollHeight > 0 ? Math.round((scrolled / scrollHeight) * 100) : 0;
+      if (scrollPercent > visitorTrackingData.maxScrollDepth) {
+        visitorTrackingData.maxScrollDepth = scrollPercent;
+      }
+    });
+
+    // Track ALL button clicks (across all pages that have this script)
+    document.addEventListener('click', (e) => {
+      if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+        const button = e.target.tagName === 'BUTTON' ? e.target : e.target.closest('button');
+        const buttonText = button.textContent.trim().substring(0, 60) || button.getAttribute('onclick') || button.className || 'Button';
+        visitorTrackingData.lastButtonClicked = buttonText;
+        visitorTrackingData.clickCount++;
+        visitorTrackingData.interactions.push({
+          type: 'button_click',
+          text: buttonText,
+          page: window.location.href,
+          timestamp: new Date().toISOString()
+        });
+        console.log('🖱️ Button clicked:', buttonText);
+      }
+    });
+
+    // Track form submissions
+    document.addEventListener('submit', (e) => {
+      const formName = e.target.id || e.target.name || 'Form';
+      visitorTrackingData.lastButtonClicked = 'Form Submitted: ' + formName;
+      visitorTrackingData.clickCount++;
+      visitorTrackingData.interactions.push({
+        type: 'form_submit',
+        formName: formName,
+        page: window.location.href,
+        timestamp: new Date().toISOString()
+      });
+      console.log('📝 Form submitted:', formName);
+    });
+
+    // Track link clicks
+    document.addEventListener('click', (e) => {
+      if (e.target.tagName === 'A' || e.target.closest('a')) {
+        const link = e.target.tagName === 'A' ? e.target : e.target.closest('a');
+        const linkText = link.textContent.trim().substring(0, 50) || link.href.split('/').pop();
+        visitorTrackingData.lastButtonClicked = 'Link: ' + linkText;
+        visitorTrackingData.clickCount++;
+        visitorTrackingData.interactions.push({
+          type: 'link_click',
+          text: linkText,
+          href: link.href,
+          page: window.location.href,
+          timestamp: new Date().toISOString()
+        });
+      }
+    });
+
+    // Save tracking data to sessionStorage on every interaction
+    window.addEventListener('click', () => {
+      sessionStorage.setItem('visitorTrackingData', JSON.stringify(visitorTrackingData));
+    });
+    window.addEventListener('submit', () => {
+      sessionStorage.setItem('visitorTrackingData', JSON.stringify(visitorTrackingData));
+    });
+
+    async function trackVisitorBeacon() {
+      try {
+        // Calculate accurate time spent (from page load to now)
+        const timeSpentSeconds = Math.round((Date.now() - visitorTrackingData.sessionStartTime) / 1000);
+        const pageLoadDuration = Date.now() - visitorTrackingData.pageLoadTime;
+        
+        // Collect device and browser information
+        const userAgent = navigator.userAgent;
+        
+        const getBrowser = () => {
+          if (userAgent.indexOf('Firefox') > -1) return 'Firefox';
+          if (userAgent.indexOf('Chrome') > -1) return 'Chrome';
+          if (userAgent.indexOf('Safari') > -1) return 'Safari';
+          if (userAgent.indexOf('Edge') > -1) return 'Edge';
+          if (userAgent.indexOf('Opera') > -1) return 'Opera';
+          return 'Other';
+        };
+
+        const getDevice = () => {
+          if (/mobile/i.test(userAgent)) return 'Mobile';
+          if (/tablet/i.test(userAgent)) return 'Tablet';
+          return 'Desktop';
+        };
+
+        const getOS = () => {
+          if (userAgent.indexOf('Windows') > -1) return 'Windows';
+          if (userAgent.indexOf('Mac') > -1) return 'macOS';
+          if (userAgent.indexOf('Linux') > -1) return 'Linux';
+          if (userAgent.indexOf('Android') > -1) return 'Android';
+          if (userAgent.indexOf('iPhone') > -1) return 'iOS';
+          return 'Unknown';
+        };
+
+        // Get geolocation data from IP
+        let ipData = { ip: 'Unknown', country: 'Unknown', city: 'Unknown', region: 'Unknown' };
+        try {
+          const response = await fetch('https://ipapi.co/json/');
+          if (response.ok) {
+            ipData = await response.json();
+          }
+        } catch (e) {
+          console.log('Geolocation fetch skipped');
+        }
+
+        const referrer = document.referrer || 'Direct visit';
+        
+        // Create complete visitor tracking record
+        const visitorRecord = {
+          sessionVisitorId: visitorTrackingData.sessionVisitorId,
+          persistentVisitorId: visitorTrackingData.persistentVisitorId,
+          visitTimestamp: new Date().toISOString(),
+          timeSpent: timeSpentSeconds,
+          lastButtonClicked: visitorTrackingData.lastButtonClicked || 'None',
+          clickCount: visitorTrackingData.clickCount,
+          pagesVisited: visitorTrackingData.pagesVisited,
+          interactions: visitorTrackingData.interactions,
+          page: {
+            url: window.location.href,
+            title: document.title,
+            referrer: referrer,
+            timeOnPage: timeSpentSeconds,
+            pageLoadTime: pageLoadDuration
+          },
+          device: {
+            type: getDevice(),
+            browser: getBrowser(),
+            os: getOS(),
+            userAgent: userAgent
+          },
+          geo: {
+            ip: ipData.ip,
+            country: ipData.country || 'Unknown',
+            city: ipData.city || 'Unknown',
+            region: ipData.region || 'Unknown'
+          },
+          interaction: {
+            scrollDepth: visitorTrackingData.maxScrollDepth,
+            sessionDuration: timeSpentSeconds,
+            clickCount: visitorTrackingData.clickCount,
+            lastButtonClicked: visitorTrackingData.lastButtonClicked || 'None'
+          }
+        };
+
+        // Try to send with sendBeacon (works during page unload)
+        if (navigator.sendBeacon) {
+          const beacon = navigator.sendBeacon(
+            'https://admin-tmaster.vercel.app/api/visitors',
+            JSON.stringify(visitorRecord)
+          );
+          if (beacon) {
+            console.log('📡 Visitor data sent via sendBeacon:', visitorTrackingData.sessionVisitorId);
+            return;
+          }
+        }
+
+        // Fallback: use fetch (only works if not unloading)
+        const apiResponse = await fetch('https://admin-tmaster.vercel.app/api/visitors', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Token': 'tmaster-admin-secure-key-2024'
+          },
+          body: JSON.stringify(visitorRecord)
+        });
+        
+        if (apiResponse.ok) {
+          console.log('✓ Visitor tracked successfully:', visitorRecord.sessionVisitorId);
+        }
+
+        // Console log for debugging
+        console.log('📊 Visitor Analytics Summary:', {
+          visitor: visitorRecord.sessionVisitorId,
+          location: ipData.country,
+          device: getDevice(),
+          scrollDepth: visitorTrackingData.maxScrollDepth + '%',
+          timeSpent: timeSpentSeconds + 's',
+          clicks: visitorTrackingData.clickCount,
+          lastButton: visitorTrackingData.lastButtonClicked || 'None',
+          pagesVisited: visitorTrackingData.pagesVisited.length
+        });
+
+      } catch (error) {
+        console.error('Visitor tracking error:', error);
+      }
+    }
+
+    // Track on page load - wait 5 minutes OR until user leaves (whichever comes first)
+    let trackingTimeoutId = null;
+    window.addEventListener('load', () => {
+      console.log('✓ Page loaded - visitor tracking will send after 5 minutes or when you navigate away');
+      trackingTimeoutId = setTimeout(() => {
+        console.log('⏱️ 5-minute mark reached - sending visitor data to admin...');
+        trackVisitorBeacon();
+      }, 5 * 60 * 1000); // 5 minutes
+    });
+
+    // Post data when user is about to leave ANY page
+    window.addEventListener('beforeunload', () => {
+      // Clear the 5-minute timeout
+      if (trackingTimeoutId) {
+        clearTimeout(trackingTimeoutId);
+      }
+      // Post visitor data immediately using sendBeacon (reliable during page unload)
+      console.log('👋 User leaving - sending visitor data now...');
+      trackVisitorBeacon();
+      
+      // Also clear sessionStorage after posting
+      sessionStorage.removeItem('visitorTrackingData');
+    });
+
+    // Also save data when page visibility changes
+    document.addEventListener('visibilitychange', () => {
+      sessionStorage.setItem('visitorTrackingData', JSON.stringify(visitorTrackingData));
+      if (document.hidden) {
+        console.log('Page hidden - saving tracking data');
+      } else {
+        console.log('Page re-engaged');
+      }
+    });
+  </script>
+
 </body>
 </html>

@@ -354,69 +354,113 @@
   <!-- VISITOR TRACKING SCRIPT -->
   <script>
     // ===============================================================
-    // GENUINE VISITOR TRACKING - Tracks real page visits and user analytics
+    // GENUINE VISITOR TRACKING - Cross-page tracking for all customer interactions
     // ===============================================================
     
-    // Initialize tracking on page load
-    let pageLoadTime = Date.now();
-    let sessionStartTime = Date.now();
-    let maxScrollDepth = 0;
-    let lastButtonClicked = null;
-    let clickCount = 0;
-    let timeSpentSeconds = 0;
+    // Initialize or retrieve tracking data from sessionStorage
+    let visitorTrackingData = JSON.parse(sessionStorage.getItem('visitorTrackingData') || 'null');
     
-    // Track scroll depth
+    if (!visitorTrackingData) {
+      // First time - create new tracking session
+      visitorTrackingData = {
+        pageLoadTime: Date.now(),
+        sessionStartTime: Date.now(),
+        sessionVisitorId: 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        persistentVisitorId: localStorage.getItem('persistentVisitorId') || 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        maxScrollDepth: 0,
+        lastButtonClicked: null,
+        clickCount: 0,
+        pagesVisited: [window.location.href],
+        interactions: []
+      };
+      
+      if (!localStorage.getItem('persistentVisitorId')) {
+        localStorage.setItem('persistentVisitorId', visitorTrackingData.persistentVisitorId);
+      }
+    }
+    
+    // Ensure persistent visitor ID is set
+    if (!localStorage.getItem('persistentVisitorId')) {
+      localStorage.setItem('persistentVisitorId', visitorTrackingData.persistentVisitorId);
+    }
+    
+    // Add current page to pages visited (if not already there)
+    if (!visitorTrackingData.pagesVisited.includes(window.location.href)) {
+      visitorTrackingData.pagesVisited.push(window.location.href);
+    }
+    
+    // Track scroll depth on this page
     window.addEventListener('scroll', () => {
       const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
       const scrolled = window.scrollY;
       const scrollPercent = scrollHeight > 0 ? Math.round((scrolled / scrollHeight) * 100) : 0;
-      if (scrollPercent > maxScrollDepth) {
-        maxScrollDepth = scrollPercent;
+      if (scrollPercent > visitorTrackingData.maxScrollDepth) {
+        visitorTrackingData.maxScrollDepth = scrollPercent;
       }
     });
 
-    // Track all button clicks
+    // Track ALL button clicks (across all pages that have this script)
     document.addEventListener('click', (e) => {
       if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
         const button = e.target.tagName === 'BUTTON' ? e.target : e.target.closest('button');
-        lastButtonClicked = button.textContent.trim().substring(0, 60) || button.getAttribute('onclick') || button.className || 'Button';
-        clickCount++;
-        console.log('🖱️ Button clicked:', lastButtonClicked);
+        const buttonText = button.textContent.trim().substring(0, 60) || button.getAttribute('onclick') || button.className || 'Button';
+        visitorTrackingData.lastButtonClicked = buttonText;
+        visitorTrackingData.clickCount++;
+        visitorTrackingData.interactions.push({
+          type: 'button_click',
+          text: buttonText,
+          page: window.location.href,
+          timestamp: new Date().toISOString()
+        });
+        console.log('🖱️ Button clicked:', buttonText);
       }
     });
 
     // Track form submissions
     document.addEventListener('submit', (e) => {
-      lastButtonClicked = 'Form Submitted: ' + (e.target.id || e.target.name || 'Form');
-      clickCount++;
-      console.log('📝 Form submitted:', lastButtonClicked);
+      const formName = e.target.id || e.target.name || 'Form';
+      visitorTrackingData.lastButtonClicked = 'Form Submitted: ' + formName;
+      visitorTrackingData.clickCount++;
+      visitorTrackingData.interactions.push({
+        type: 'form_submit',
+        formName: formName,
+        page: window.location.href,
+        timestamp: new Date().toISOString()
+      });
+      console.log('📝 Form submitted:', formName);
     });
 
     // Track link clicks
     document.addEventListener('click', (e) => {
       if (e.target.tagName === 'A' || e.target.closest('a')) {
         const link = e.target.tagName === 'A' ? e.target : e.target.closest('a');
-        lastButtonClicked = 'Link: ' + (link.textContent.trim().substring(0, 50) || link.href.split('/').pop());
-        clickCount++;
+        const linkText = link.textContent.trim().substring(0, 50) || link.href.split('/').pop();
+        visitorTrackingData.lastButtonClicked = 'Link: ' + linkText;
+        visitorTrackingData.clickCount++;
+        visitorTrackingData.interactions.push({
+          type: 'link_click',
+          text: linkText,
+          href: link.href,
+          page: window.location.href,
+          timestamp: new Date().toISOString()
+        });
       }
     });
 
-    async function trackVisitor() {
+    // Save tracking data to sessionStorage on every interaction
+    window.addEventListener('click', () => {
+      sessionStorage.setItem('visitorTrackingData', JSON.stringify(visitorTrackingData));
+    });
+    window.addEventListener('submit', () => {
+      sessionStorage.setItem('visitorTrackingData', JSON.stringify(visitorTrackingData));
+    });
+
+    async function trackVisitorBeacon() {
       try {
-        // Generate or retrieve session visitor ID
-        let sessionVisitorId = sessionStorage.getItem('sessionVisitorId');
-        if (!sessionVisitorId) {
-          sessionVisitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-          sessionStorage.setItem('sessionVisitorId', sessionVisitorId);
-        }
-
-        // Also track persistent visitor across sessions
-        let persistentVisitorId = localStorage.getItem('persistentVisitorId');
-        if (!persistentVisitorId) {
-          persistentVisitorId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-          localStorage.setItem('persistentVisitorId', persistentVisitorId);
-        }
-
+        // Calculate accurate time spent (from page load to now)
+        const timeSpentSeconds = Math.round((Date.now() - visitorTrackingData.sessionStartTime) / 1000);
+        const pageLoadDuration = Date.now() - visitorTrackingData.pageLoadTime;
+        
         // Collect device and browser information
         const userAgent = navigator.userAgent;
         
@@ -455,19 +499,18 @@
           console.log('Geolocation fetch skipped');
         }
 
-        // Calculate time metrics
-        const pageLoadDuration = Date.now() - pageLoadTime;
-        timeSpentSeconds = Math.round((Date.now() - sessionStartTime) / 1000);
         const referrer = document.referrer || 'Direct visit';
         
         // Create complete visitor tracking record
         const visitorRecord = {
-          sessionVisitorId: sessionVisitorId,
-          persistentVisitorId: persistentVisitorId,
+          sessionVisitorId: visitorTrackingData.sessionVisitorId,
+          persistentVisitorId: visitorTrackingData.persistentVisitorId,
           visitTimestamp: new Date().toISOString(),
           timeSpent: timeSpentSeconds,
-          lastButtonClicked: lastButtonClicked || 'None',
-          clickCount: clickCount,
+          lastButtonClicked: visitorTrackingData.lastButtonClicked || 'None',
+          clickCount: visitorTrackingData.clickCount,
+          pagesVisited: visitorTrackingData.pagesVisited,
+          interactions: visitorTrackingData.interactions,
           page: {
             url: window.location.href,
             title: document.title,
@@ -488,41 +531,37 @@
             region: ipData.region || 'Unknown'
           },
           interaction: {
-            scrollDepth: maxScrollDepth,
+            scrollDepth: visitorTrackingData.maxScrollDepth,
             sessionDuration: timeSpentSeconds,
-            clickCount: clickCount,
-            lastButtonClicked: lastButtonClicked || 'None'
+            clickCount: visitorTrackingData.clickCount,
+            lastButtonClicked: visitorTrackingData.lastButtonClicked || 'None'
           }
         };
 
-        // Store locally for analytics
-        let sessionVisitors = JSON.parse(sessionStorage.getItem('sessionVisitors') || '[]');
-        sessionVisitors.push(visitorRecord);
-        sessionStorage.setItem('sessionVisitors', JSON.stringify(sessionVisitors));
-
-        // Also store in localStorage for persistence
-        let allVisitors = JSON.parse(localStorage.getItem('allVisitorsLog') || '[]');
-        allVisitors.push(visitorRecord);
-        localStorage.setItem('allVisitorsLog', JSON.stringify(allVisitors));
-
-        // Send to admin API
-        try {
-          const apiResponse = await fetch('https://admin-tmaster.vercel.app/api/visitors', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-API-Token': 'tmaster-admin-secure-key-2024'
-            },
-            body: JSON.stringify(visitorRecord)
-          });
-          
-          if (apiResponse.ok) {
-            console.log('✓ Visitor tracked successfully:', visitorRecord.sessionVisitorId);
-          } else {
-            console.log('Admin API response:', apiResponse.status);
+        // Try to send with sendBeacon (works during page unload)
+        if (navigator.sendBeacon) {
+          const beacon = navigator.sendBeacon(
+            'https://admin-tmaster.vercel.app/api/visitors',
+            JSON.stringify(visitorRecord)
+          );
+          if (beacon) {
+            console.log('📡 Visitor data sent via sendBeacon:', visitorTrackingData.sessionVisitorId);
+            return;
           }
-        } catch (apiError) {
-          console.log('Admin API tracking skipped - offline or unavailable');
+        }
+
+        // Fallback: use fetch (only works if not unloading)
+        const apiResponse = await fetch('https://admin-tmaster.vercel.app/api/visitors', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Token': 'tmaster-admin-secure-key-2024'
+          },
+          body: JSON.stringify(visitorRecord)
+        });
+        
+        if (apiResponse.ok) {
+          console.log('✓ Visitor tracked successfully:', visitorRecord.sessionVisitorId);
         }
 
         // Console log for debugging
@@ -530,10 +569,11 @@
           visitor: visitorRecord.sessionVisitorId,
           location: ipData.country,
           device: getDevice(),
-          scrollDepth: maxScrollDepth + '%',
+          scrollDepth: visitorTrackingData.maxScrollDepth + '%',
           timeSpent: timeSpentSeconds + 's',
-          clicks: clickCount,
-          lastButton: lastButtonClicked || 'None'
+          clicks: visitorTrackingData.clickCount,
+          lastButton: visitorTrackingData.lastButtonClicked || 'None',
+          pagesVisited: visitorTrackingData.pagesVisited.length
         });
 
       } catch (error) {
@@ -541,31 +581,36 @@
       }
     }
 
-    // Track on page load - wait 5 minutes (300 seconds) before posting visitor data
+    // Track on page load - wait 5 minutes OR until user leaves (whichever comes first)
     let trackingTimeoutId = null;
     window.addEventListener('load', () => {
-      console.log('✓ Page loaded - visitor tracking will send after 5 minutes');
+      console.log('✓ Page loaded - visitor tracking will send after 5 minutes or when you navigate away');
       trackingTimeoutId = setTimeout(() => {
         console.log('⏱️ 5-minute mark reached - sending visitor data to admin...');
-        trackVisitor();
+        trackVisitorBeacon();
       }, 5 * 60 * 1000); // 5 minutes
     });
 
-    // Mark when user is about to leave (but don't post - only local storage)
+    // Post data when user is about to leave ANY page
     window.addEventListener('beforeunload', () => {
-      // Clear pending timeout so it doesn't fire after page is unloaded
+      // Clear the 5-minute timeout
       if (trackingTimeoutId) {
         clearTimeout(trackingTimeoutId);
       }
-      // Store the visit locally even if 5 minutes hasn't passed
-      sessionStorage.setItem('lastSessionEnd', new Date().toISOString());
-      sessionStorage.setItem('sessionAbandoned', 'true');
+      // Post visitor data immediately using sendBeacon (reliable during page unload)
+      console.log('👋 User leaving - sending visitor data now...');
+      trackVisitorBeacon();
+      
+      // Also clear sessionStorage after posting
+      sessionStorage.removeItem('visitorTrackingData');
     });
 
-    // Track visibility changes
+    // Also save data when page visibility changes
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) {
-        // Page became visible, could track as re-engagement
+      sessionStorage.setItem('visitorTrackingData', JSON.stringify(visitorTrackingData));
+      if (document.hidden) {
+        console.log('Page hidden - saving tracking data');
+      } else {
         console.log('Page re-engaged');
       }
     });

@@ -445,12 +445,22 @@
           "exchangeRate": 1,
           "sections": [
             {
-              "id": "ga-1782895523188",
+              "id": "ga-1782896628953",
               "section": "General",
               "row": "GA",
               "block": "ga",
-              "price": 400,
+              "price": 399.99,
               "type": "ga",
+              "currency": "USD",
+              "exchangeRate": 1
+            },
+            {
+              "id": "17828965206690.4740662598654558",
+              "section": "234",
+              "row": "FF",
+              "block": "vip",
+              "price": 1523.99,
+              "type": "vip",
               "currency": "USD",
               "exchangeRate": 1
             },
